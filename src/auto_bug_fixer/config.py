@@ -54,11 +54,15 @@ class Settings(BaseSettings):
     git_committer_email: str = "[email protected]"
 
     # SMTP
-    smtp_host: str
+    # Email is OPTIONAL. When email_enabled=False the system runs the full
+    # bug -> Claude -> PR pipeline but skips sending the confirmation email,
+    # so all SMTP_* fields below are unused and can be left blank.
+    email_enabled: bool = False
+    smtp_host: str = ""
     smtp_port: int = 587
-    smtp_username: str
-    smtp_password: SecretStr
-    notify_from: str
+    smtp_username: str = ""
+    smtp_password: SecretStr = SecretStr("")
+    notify_from: str = ""
     notify_cc: str = ""
 
     # Sandbox

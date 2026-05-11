@@ -75,12 +75,13 @@ def _reset_calls() -> None:
     _calls.sent.clear()
 
 
-def _settings(notify_cc: str = "") -> Settings:
+def _settings(notify_cc: str = "", email_enabled: bool = True) -> Settings:
     return Settings(
         _env_file=None,  # type: ignore[call-arg]
         anthropic_api_key="x",
         database_url="sqlite:///:memory:",
         github_token="x",
+        email_enabled=email_enabled,
         smtp_host="smtp.example",
         smtp_port=587,
         smtp_username="user",
@@ -173,3 +174,41 @@ def test_smtp_failure_raises_email_delivery_error() -> None:
                 bug=_bug(),
                 outcome=FixOutcome(success=False, summary="x", error="y"),
             )
+
+
+def test_notify_success_is_noop_when_email_disabled() -> None:
+    """When EMAIL_ENABLED=false the SMTP layer must never be touched."""
+    notifier = EmailNotifier(_settings(email_enabled=False))
+    with patch("auto_bug_fixer.notify.email_sender.smtplib.SMTP", _FakeSmtp):
+        notifier.notify_success(
+            bug=_bug(),
+            outcome=FixOutcome(success=True, summary="ok", changed_files=[]),
+            pr=PullRequest(number=1, url="u", branch="b", title="t"),
+        )
+    assert _calls.sent == []
+    assert _calls.starttls == 0
+    assert _calls.login == []
+
+
+def test_notify_failure_is_noop_when_email_disabled() -> None:
+    notifier = EmailNotifier(_settings(email_enabled=False))
+    with patch("auto_bug_fixer.notify.email_sender.smtplib.SMTP", _FakeSmtp):
+        notifier.notify_failure(
+            bug=_bug(),
+            outcome=FixOutcome(success=False, summary="x", error="y"),
+        )
+    assert _calls.sent == []
+
+
+def test_settings_accept_blank_smtp_when_email_disabled() -> None:
+    """Verifies the Settings model itself: SMTP_* may be empty when disabled."""
+    s = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        anthropic_api_key="x",
+        database_url="sqlite:///:memory:",
+        github_token="x",
+        email_enabled=False,
+    )
+    assert s.email_enabled is False
+    assert s.smtp_host == ""
+    assert s.notify_from == ""

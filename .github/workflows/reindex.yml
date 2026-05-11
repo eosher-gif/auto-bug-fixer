@@ -49,16 +49,14 @@ jobs:
           # The indexer needs a token that can clone target repos. For PUBLIC
           # target repos we can omit this and clone anonymously, but PATs work
           # for both, so we always pass one through.
-          GITHUB_TOKEN: ${{ secrets.BUG_FIXER_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
           GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
-          # Required by Settings (not actually used in index-once mode)
+          # Required by Settings (not actually used in index-once mode).
+          # Email defaults to disabled so SMTP_* secrets are optional.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
+          DATABASE_URL: ${{ secrets.BUG_DB_URL }}
+          EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
           REPOS_FILE: ${{ github.workspace }}/repos.yaml
           INDEX_DIR: ${{ github.workspace }}/indexes
           HEALTH_ENABLED: "false"

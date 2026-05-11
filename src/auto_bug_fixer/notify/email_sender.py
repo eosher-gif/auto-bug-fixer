@@ -32,6 +32,9 @@ class EmailNotifier:
         pr: PullRequest,
     ) -> None:
         """Send a success email about ``pr`` to the bug reporter (if known)."""
+        if not self._settings.email_enabled:
+            log.info("skip_email_disabled", bug_id=bug.id)
+            return
         if not bug.reporter_email:
             log.info("skip_email_no_reporter", bug_id=bug.id)
             return
@@ -51,6 +54,9 @@ class EmailNotifier:
 
     def notify_failure(self, bug: Bug, outcome: FixOutcome) -> None:
         """Send a failure email so a human knows to take over."""
+        if not self._settings.email_enabled:
+            log.info("skip_email_disabled", bug_id=bug.id)
+            return
         if not bug.reporter_email:
             log.info("skip_email_no_reporter", bug_id=bug.id)
             return

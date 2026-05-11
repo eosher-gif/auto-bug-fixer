@@ -53,7 +53,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
           # Bug DB
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.BUG_DB_URL }}
           BUG_TABLE_NAME: ${{ vars.BUG_TABLE_NAME }}
           BUG_ID_COLUMN: ${{ vars.BUG_ID_COLUMN }}
           BUG_TITLE_COLUMN: ${{ vars.BUG_TITLE_COLUMN }}
@@ -68,10 +68,12 @@ jobs:
           BUG_STATUS_FAILED: ${{ vars.BUG_STATUS_FAILED }}
           MAX_BUGS_PER_RUN: ${{ inputs.max_bugs || vars.MAX_BUGS_PER_RUN }}
           # GitHub (PR creation on TARGET repos)
-          GITHUB_TOKEN: ${{ secrets.BUG_FIXER_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
           GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
-          # SMTP
+          # Email is disabled by default. Flip EMAIL_ENABLED variable to "true"
+          # in repo settings (Variables) once SMTP_* secrets exist.
+          EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ vars.SMTP_PORT }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
