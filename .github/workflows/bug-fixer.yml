@@ -21,8 +21,12 @@ name: bug-fixer
 # Make this repo PUBLIC for unlimited Actions minutes.
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # Cron is intentionally DISABLED until the Firestore migration is finished
+  # and BUG_DB_URL secret is configured. Re-enable by uncommenting the
+  # 'schedule' block below.
+  #
+  # schedule:
+  #   - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       max_bugs:
