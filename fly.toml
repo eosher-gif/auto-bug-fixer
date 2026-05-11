@@ -1,0 +1,29 @@
+app = "auto-bug-fixer"
+primary_region = "fra"
+kill_signal = "SIGTERM"
+kill_timeout = 60
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  worker = "python -m auto_bug_fixer"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1
+  processes = ["worker"]
+
+[deploy]
+  strategy = "immediate"
+
+[env]
+  WORKSPACE_DIR = "/var/workspace"
+  LOG_FORMAT = "json"
+  LOG_LEVEL = "INFO"
+
+[mounts]
+  source = "workspace"
+  destination = "/var/workspace"
+  initial_size = "1gb"

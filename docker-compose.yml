@@ -1,0 +1,30 @@
+services:
+  auto-bug-fixer:
+    build: .
+    image: auto-bug-fixer:latest
+    container_name: auto-bug-fixer
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - workspace:/var/workspace
+      - index:/var/auto-bug-fixer/index
+      - ./repos.yaml:/app/repos.yaml:ro
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u, sys; sys.exit(0 if u.urlopen('http://127.0.0.1:8080/ready', timeout=5).status == 200 else 1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  workspace:
+  index:

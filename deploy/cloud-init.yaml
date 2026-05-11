@@ -1,0 +1,46 @@
+#cloud-config
+# Cloud-init config: paste this into the "User data" / "Cloud-init" field
+# when creating the VM in Oracle Cloud / GCP / Hetzner / DigitalOcean.
+#
+# It will:
+#   1. Install Docker and basic utilities on first boot.
+#   2. Allow inbound 8080 (health endpoint) through ufw.
+#   3. Clone the auto-bug-fixer repo into /opt/auto-bug-fixer.
+#   4. Drop a placeholder .env that you must SSH in and fill out, then run:
+#        sudo bash /opt/auto-bug-fixer/deploy/install.sh
+#
+# Replace REPLACE_ME with your fork's URL before pasting.
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - git
+  - curl
+  - ca-certificates
+  - ufw
+
+write_files:
+  - path: /etc/profile.d/auto-bug-fixer.sh
+    permissions: "0644"
+    content: |
+      export AUTO_BUG_FIXER_DIR=/opt/auto-bug-fixer
+
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - systemctl enable --now docker
+  - ufw allow 22/tcp
+  - ufw allow 8080/tcp
+  - ufw --force enable
+  - git clone --depth 1 https://github.com/REPLACE_ME/auto-bug-fixer.git /opt/auto-bug-fixer
+  - cp /opt/auto-bug-fixer/.env.example /opt/auto-bug-fixer/.env
+  - cp /opt/auto-bug-fixer/repos.yaml.example /opt/auto-bug-fixer/repos.yaml
+  - chmod +x /opt/auto-bug-fixer/deploy/install.sh
+
+final_message: |
+  auto-bug-fixer base install complete.
+  Next steps (SSH in):
+    sudo nano /opt/auto-bug-fixer/.env         # fill in real secrets
+    sudo nano /opt/auto-bug-fixer/repos.yaml   # add your repo list
+    sudo bash /opt/auto-bug-fixer/deploy/install.sh
+  Health check (after start): curl http://<vm-ip>:8080/health

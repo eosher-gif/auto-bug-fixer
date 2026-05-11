@@ -1,0 +1,4 @@
+# This folder holds per-repo knowledge indexes (one JSON file per repo).
+# It is populated and updated by the `reindex` workflow.
+# The `bug-fixer` workflow reads these files to give Claude immediate
+# repo context when a bug arrives.

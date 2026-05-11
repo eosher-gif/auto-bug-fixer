@@ -1,0 +1,90 @@
+name: bug-fixer
+
+# Production runtime: every 15 minutes the workflow polls the bug DB,
+# processes up to MAX_BUGS_PER_RUN bugs, opens PRs on the target repos,
+# and exits. It is the GitHub-Actions equivalent of `python -m auto_bug_fixer daemon`.
+#
+# Free-tier budget (private repo): 2000 min/month.
+# At */15 polling and ~30s idle ticks, the baseline cost is ~720 min/month,
+# leaving ~1280 min/month for actual bug-fix work (≈250 fixes).
+# Make this repo PUBLIC for unlimited Actions minutes.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      max_bugs:
+        description: "Override MAX_BUGS_PER_RUN for this manual run"
+        required: false
+        default: "3"
+
+concurrency:
+  group: bug-fixer
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  process-bugs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout (with indexes/ folder for repo context)
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run one pipeline tick
+        env:
+          PYTHONPATH: src
+          # Anthropic
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+          # Bug DB
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BUG_TABLE_NAME: ${{ vars.BUG_TABLE_NAME }}
+          BUG_ID_COLUMN: ${{ vars.BUG_ID_COLUMN }}
+          BUG_TITLE_COLUMN: ${{ vars.BUG_TITLE_COLUMN }}
+          BUG_DESCRIPTION_COLUMN: ${{ vars.BUG_DESCRIPTION_COLUMN }}
+          BUG_STATUS_COLUMN: ${{ vars.BUG_STATUS_COLUMN }}
+          BUG_REPO_URL_COLUMN: ${{ vars.BUG_REPO_URL_COLUMN }}
+          BUG_REPO_BRANCH_COLUMN: ${{ vars.BUG_REPO_BRANCH_COLUMN }}
+          BUG_REPORTER_EMAIL_COLUMN: ${{ vars.BUG_REPORTER_EMAIL_COLUMN }}
+          BUG_STATUS_NEW: ${{ vars.BUG_STATUS_NEW }}
+          BUG_STATUS_PROCESSING: ${{ vars.BUG_STATUS_PROCESSING }}
+          BUG_STATUS_MR_OPENED: ${{ vars.BUG_STATUS_MR_OPENED }}
+          BUG_STATUS_FAILED: ${{ vars.BUG_STATUS_FAILED }}
+          MAX_BUGS_PER_RUN: ${{ inputs.max_bugs || vars.MAX_BUGS_PER_RUN }}
+          # GitHub (PR creation on TARGET repos)
+          GITHUB_TOKEN: ${{ secrets.BUG_FIXER_GITHUB_TOKEN }}
+          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
+          # SMTP
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
+          NOTIFY_CC: ${{ vars.NOTIFY_CC }}
+          # Sandbox + indexing
+          WORKSPACE_DIR: /tmp/auto-bug-fixer
+          REPOS_FILE: ${{ github.workspace }}/repos.yaml
+          INDEX_DIR: ${{ github.workspace }}/indexes
+          # Disable health server (irrelevant in Actions)
+          HEALTH_ENABLED: "false"
+          # Logging
+          LOG_LEVEL: INFO
+          LOG_FORMAT: json
+        run: python -m auto_bug_fixer run-once

@@ -1,0 +1,23 @@
+# Registry of repositories the bug-fixer is responsible for.
+#
+# Each entry must include `url` and `default_branch`. All other fields are
+# optional metadata that helps Claude work efficiently on the codebase.
+#
+# Edit this file and check it in. It is loaded at startup and on every
+# re-index cycle.
+
+repos:
+  - url: https://github.com/acme/widgets
+    default_branch: main
+    language: python
+    test_command: pytest -q
+    description: |
+      Customer-facing widgets backend (FastAPI).
+      Bugs typically come from inventory drift between the cache and DB.
+
+  - url: https://github.com/acme/api
+    default_branch: main
+    language: typescript
+    test_command: npm test
+    description: |
+      Public REST API gateway. Strict 12-factor; no shared state between requests.

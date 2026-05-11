@@ -1,0 +1,77 @@
+name: reindex
+
+# Once a day, regenerate the per-repo knowledge index for every entry in
+# repos.yaml and commit the resulting JSON files back to indexes/. The
+# bug-fixer workflow then reads those committed indexes on every run.
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: reindex
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  reindex:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure git committer
+        run: |
+          git config user.name  "auto-bug-fixer[bot]"
+          git config user.email "auto-bug-fixer[bot]@users.noreply.github.com"
+
+      - name: Build indexes for every repo in repos.yaml
+        env:
+          PYTHONPATH: src
+          # The indexer needs a token that can clone target repos. For PUBLIC
+          # target repos we can omit this and clone anonymously, but PATs work
+          # for both, so we always pass one through.
+          GITHUB_TOKEN: ${{ secrets.BUG_FIXER_GITHUB_TOKEN }}
+          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
+          # Required by Settings (not actually used in index-once mode)
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
+          REPOS_FILE: ${{ github.workspace }}/repos.yaml
+          INDEX_DIR: ${{ github.workspace }}/indexes
+          HEALTH_ENABLED: "false"
+          LOG_LEVEL: INFO
+          LOG_FORMAT: json
+        run: python -m auto_bug_fixer index-once
+
+      - name: Commit refreshed indexes (if changed)
+        run: |
+          if [[ -n "$(git status --porcelain indexes/)" ]]; then
+            git add indexes/
+            git commit -m "chore(indexes): daily refresh [skip ci]"
+            git push
+          else
+            echo "No index changes."
+          fi

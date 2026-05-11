@@ -1,0 +1,35 @@
+[Unit]
+Description=auto-bug-fixer daemon
+Documentation=https://github.com/REPLACE_ME/auto-bug-fixer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fixer
+Group=fixer
+WorkingDirectory=/opt/auto-bug-fixer
+EnvironmentFile=/opt/auto-bug-fixer/.env
+Environment=PYTHONPATH=/opt/auto-bug-fixer/src
+ExecStart=/opt/auto-bug-fixer/venv/bin/python -m auto_bug_fixer daemon
+Restart=on-failure
+RestartSec=10s
+TimeoutStopSec=60s
+KillSignal=SIGTERM
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/auto-bug-fixer /tmp
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target
