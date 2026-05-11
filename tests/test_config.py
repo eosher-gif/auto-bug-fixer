@@ -57,3 +57,40 @@ def test_health_port_must_be_in_range(
     _set_env(monkeypatch, HEALTH_PORT="0")
     with pytest.raises(ValidationError):
         Settings(_env_file=None)  # type: ignore[call-arg]
+
+
+def test_email_disabled_allows_blank_smtp_fields(env_isolation) -> None:
+    """Without any SMTP_* env vars, Settings must build when email is off."""
+    s = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        anthropic_api_key="x",
+        database_url="sqlite:///:memory:",
+        github_token="t",
+    )
+    assert s.email_enabled is False
+    assert s.smtp_host == ""
+
+
+def test_email_enabled_requires_smtp_host(
+    env_isolation, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _set_env(monkeypatch, EMAIL_ENABLED="true", SMTP_HOST="")
+    with pytest.raises(ValidationError, match="smtp_host"):
+        Settings(_env_file=None)  # type: ignore[call-arg]
+
+
+def test_email_enabled_requires_notify_from(
+    env_isolation, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _set_env(monkeypatch, EMAIL_ENABLED="true", NOTIFY_FROM="")
+    with pytest.raises(ValidationError, match="notify_from"):
+        Settings(_env_file=None)  # type: ignore[call-arg]
+
+
+def test_email_enabled_with_full_smtp_succeeds(
+    env_isolation, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _set_env(monkeypatch, EMAIL_ENABLED="true")
+    s = Settings(_env_file=None)  # type: ignore[call-arg]
+    assert s.email_enabled is True
+    assert s.smtp_host == "smtp.example"

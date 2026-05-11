@@ -4,7 +4,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -87,6 +87,32 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
+
+    @model_validator(mode="after")
+    def _require_smtp_when_email_enabled(self) -> "Settings":
+        """Fail fast at startup if email is on but SMTP fields are blank.
+
+        Without this check, an EMAIL_ENABLED=true deployment would parse
+        Settings successfully and only fail later inside _send() with an
+        opaque EmailDeliveryError on the first bug.
+        """
+        if not self.email_enabled:
+            return self
+        missing = [
+            name
+            for name, value in (
+                ("smtp_host", self.smtp_host),
+                ("smtp_username", self.smtp_username),
+                ("smtp_password", self.smtp_password.get_secret_value()),
+                ("notify_from", self.notify_from),
+            )
+            if not value
+        ]
+        if missing:
+            raise ValueError(
+                "EMAIL_ENABLED=true requires non-empty: " + ", ".join(missing)
+            )
+        return self
 
 
 @lru_cache(maxsize=1)

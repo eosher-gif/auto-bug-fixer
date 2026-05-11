@@ -4,6 +4,17 @@ name: bug-fixer
 # processes up to MAX_BUGS_PER_RUN bugs, opens PRs on the target repos,
 # and exits. It is the GitHub-Actions equivalent of `python -m auto_bug_fixer daemon`.
 #
+# REQUIRED REPOSITORY SECRETS (Settings -> Secrets and variables -> Actions):
+#   ANTHROPIC_API_KEY  - Anthropic API key (Claude)
+#   BUG_DB_URL         - SQLAlchemy URL of the bug database
+#   GH_TOKEN           - PAT with Contents+PullRequests write on target repos
+#   SMTP_HOST          - (only if EMAIL_ENABLED variable = "true")
+#   SMTP_USERNAME      - (only if EMAIL_ENABLED variable = "true")
+#   SMTP_PASSWORD      - (only if EMAIL_ENABLED variable = "true")
+#
+# Missing secrets evaluate to "" in GitHub Actions and Settings will reject
+# them at startup, so the workflow fails fast rather than silently.
+#
 # Free-tier budget (private repo): 2000 min/month.
 # At */15 polling and ~30s idle ticks, the baseline cost is ~720 min/month,
 # leaving ~1280 min/month for actual bug-fix work (≈250 fixes).

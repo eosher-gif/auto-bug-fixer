@@ -3,6 +3,11 @@ name: reindex
 # Once a day, regenerate the per-repo knowledge index for every entry in
 # repos.yaml and commit the resulting JSON files back to indexes/. The
 # bug-fixer workflow then reads those committed indexes on every run.
+#
+# REQUIRED REPOSITORY SECRETS (same set as bug-fixer.yml):
+#   ANTHROPIC_API_KEY  - required by Settings, not actually used here
+#   BUG_DB_URL         - required by Settings, not actually used here
+#   GH_TOKEN           - PAT used to clone target repos in repos.yaml
 
 on:
   schedule:

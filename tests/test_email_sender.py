@@ -198,6 +198,8 @@ def test_notify_failure_is_noop_when_email_disabled() -> None:
             outcome=FixOutcome(success=False, summary="x", error="y"),
         )
     assert _calls.sent == []
+    assert _calls.starttls == 0
+    assert _calls.login == []
 
 
 def test_settings_accept_blank_smtp_when_email_disabled() -> None:
