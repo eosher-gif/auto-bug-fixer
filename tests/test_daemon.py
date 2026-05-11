@@ -101,15 +101,39 @@ def test_error_backoff_used_on_exception(monkeypatch: pytest.MonkeyPatch) -> Non
 
 
 def test_health_state_records_success_and_error_ticks() -> None:
-    pipeline = _FakePipeline(sequence=[2, RuntimeError("boom")])
+    """Self-stopping pipeline avoids race conditions on fast runners.
+
+    Tick 1 returns handled=2 (success).
+    Tick 2 raises RuntimeError('boom') AND requests daemon shutdown so the
+    error tick is the last one and `last_error` is not overwritten by a
+    later success/StopIteration.
+    """
     health = HealthState()
+
+    @dataclass
+    class _StopOnErrorPipeline:
+        owner: BugFixDaemon | None = None
+        calls: int = 0
+
+        def run_once(self) -> int:
+            self.calls += 1
+            if self.calls == 1:
+                return 2
+            if self.owner is not None:
+                self.owner.request_stop()
+            raise RuntimeError("boom")
+
+    pipeline = _StopOnErrorPipeline()
     daemon = BugFixDaemon(
-        settings=_FakeSettings(), pipeline=pipeline, health_state=health  # type: ignore[arg-type]
+        settings=_FakeSettings(),  # type: ignore[arg-type]
+        pipeline=pipeline,  # type: ignore[arg-type]
+        health_state=health,
     )
-    _stop_after(daemon, pipeline, 2)
+    pipeline.owner = daemon
     daemon.run_forever()
+
     snapshot = health.snapshot()
-    assert snapshot["total_ticks"] >= 2
+    assert snapshot["total_ticks"] == 2
     assert snapshot["total_handled"] == 2
     assert snapshot["last_error"] == "boom"
 
