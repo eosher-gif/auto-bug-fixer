@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-12T15:34:16+00:00",
+  "indexed_at": "2026-05-12T17:20:29+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -169,5 +169,118 @@
   "key_files": [
     "README.md",
     "package.json"
-  ]
+  ],
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "xlsx": "^0.18.5",
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.0",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "vite": "^8.0.0"
+  },
+  "routes": [
+    "src/pages/Billing.jsx",
+    "src/pages/Clients.jsx",
+    "src/pages/Contents.jsx",
+    "src/pages/Dashboard.jsx",
+    "src/pages/FinanceDashboard.jsx",
+    "src/pages/Home.jsx",
+    "src/pages/Knowledge.jsx",
+    "src/pages/Login.jsx",
+    "src/pages/MonthlyReport.jsx",
+    "src/pages/Projects.jsx",
+    "src/pages/PublicWorkLog.jsx",
+    "src/pages/SignaturePage.jsx",
+    "src/pages/SupplierBilling.jsx",
+    "src/pages/Suppliers.jsx",
+    "src/pages/WorkLog.jsx",
+    "/worklog-public",
+    "/sign/:token",
+    "/*"
+  ],
+  "component_map": {
+    "src/pages/Billing.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Clients.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Contents.jsx": [
+      "../lib/supabase",
+      "../data/scopeTemplate"
+    ],
+    "src/pages/Dashboard.jsx": [
+      "./Home",
+      "./Clients",
+      "./Projects",
+      "./Contents",
+      "./Billing",
+      "./WorkLog",
+      "./Knowledge",
+      "./Suppliers",
+      "./SupplierBilling",
+      "./MonthlyReport",
+      "./FinanceDashboard"
+    ],
+    "src/pages/FinanceDashboard.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Home.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Knowledge.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Login.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/MonthlyReport.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Projects.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/PublicWorkLog.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/SignaturePage.jsx": [
+      "../lib/supabase",
+      "../assets/yael-logo.jpeg"
+    ],
+    "src/pages/SupplierBilling.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/Suppliers.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/WorkLog.jsx": [
+      "../lib/supabase"
+    ]
+  },
+  "key_snippets": {
+    "package.json": "{\n  \"name\": \"yael_siso\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"engines\": { \"node\": \">=20.0.0\" },\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint .\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@supabase/supabase-js\": \"^2.99.1\",\n    \"@tailwindcss/vite\": \"^4.2.1\",\n    \"lucide-react\": \"^0.577.0\",\n    \"react\": \"^19.2.4\",\n    \"react-dom\": \"^19.2.4\",\n    \"react-router-dom\": \"^7.13.1\",\n    \"xlsx\": \"^0.18.5\"\n  },\n  \"devDependencies\": {\n    \"@eslint/js\": \"^9.39.4\",\n    \"@types/react\": \"^19.2.14\",\n    \"@types/react-dom\": \"^19.2.3\",\n    \"@vitejs/plugin-react\": \"^6.0.0\",\n    \"autoprefixer\": \"^10.4.27\",\n    \"eslint\": \"^9.39.4\",\n    \"eslint-plugin-react-hooks\": \"^7.0.1\",\n    \"eslint-plugin-react-refresh\": \"^0.5.2\",\n    \"globals\": \"^17.4.0\",\n    \"postcss\": \"^8.5.8\",\n    \"tailwindcss\": \"^4.2.1\",\n    \"vite\": \"^8.0.0\"\n  }\n}\n",
+    "vite.config.js": "import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\nimport tailwindcss from '@tailwindcss/vite'\n\nexport default defineConfig({\n  plugins: [react(), tailwindcss()],\n})\n",
+    "src/App.jsx": "import { useState, useEffect } from 'react'\nimport { BrowserRouter, Routes, Route } from 'react-router-dom'\nimport { supabase } from './lib/supabase'\nimport Dashboard from './pages/Dashboard'\nimport PublicWorkLog from './pages/PublicWorkLog'\nimport SignaturePage from './pages/SignaturePage'\nimport Login from './pages/Login'\n\nfunction App() {\n  const [user, setUser] = useState(null)\n  const [userRole, setUserRole] = useState(null)\n  const [loading, setLoading] = useState(true)\n\n  useEffect(() => {\n    // Check existing session\n    supabase.auth.getSession().then(({ data: { session } }) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setLoading(false)\n      }\n    })\n\n    // Listen for auth changes\n    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setUser(null)\n        setUserRole(null)\n      }\n    })\n\n    return () => subscription.unsubscribe()\n  }, [])\n\n  async function loadRole(email) {\n    const { data, error } = await supabase.from('user_roles').select('role, name').eq('email', email).maybeSingle()\n    // If table doesn't exist or no row found, default to admin\n    setUserRole(data || { role: 'admin', name: email.split('@')[0] })\n    setLoading(false)\n  }\n\n  async function handleLogin(u) {\n    setUser(u)\n    await loadRole(u.email)\n  }\n\n  async function handleLogout() {\n    await supabase.auth.signOut()\n    setUser(null)\n    setUserRole(null)\n  }\n\n  if (loading) {\n    return (\n      <div className=\"min-h-screen bg-[#091426] flex items-center justify-center\">\n        <div className=\"w-8 h-8 border-2 border-[#B8960B] border-t-transparent rounded-full animate-spin\" />\n      </div>\n    )\n  }\n\n  return (\n    <BrowserRouter>\n      <Routes>\n        {/* Public pages \u2014 no auth */}\n        <Route path=\"/worklog-public\" element={<PublicWorkLog />} />\n        <Route path=\"/sign/:token\" element={<SignaturePage />} />\n\n        {/* Protected pages */}\n        <Route path=\"/*\" element={\n          user ? (\n            <Dashboard userRole={userRole} onLogout={handleLogout} />\n          ) : (\n            <Login onLogin={handleLogin} />\n          )\n        } />\n      </Routes>\n    </BrowserRouter>\n  )\n}\n\nexport default App\n",
+    "src/main.jsx": "import { StrictMode } from 'react'\nimport { createRoot } from 'react-dom/client'\nimport './index.css'\nimport App from './App.jsx'\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n)\n",
+    "tailwind.config.js": "/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    \"./index.html\",\n    \"./src/**/*.{js,ts,jsx,tsx}\",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}\n"
+  },
+  "entry_points": [
+    "src/main.jsx",
+    "src/App.jsx",
+    "index.html"
+  ],
+  "framework_details": "React ^19.2.4, Vite ^8.0.0, Tailwind CSS, React Router, Vercel deployment"
 }

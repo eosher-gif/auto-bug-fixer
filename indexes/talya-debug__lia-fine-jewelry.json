@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/lia-fine-jewelry",
   "default_branch": "master",
-  "indexed_at": "2026-05-12T15:34:18+00:00",
+  "indexed_at": "2026-05-12T17:20:31+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -285,5 +285,11 @@
     "lia_catalog_data.json",
     "order-flow.html"
   ],
-  "key_files": []
+  "key_files": [],
+  "dependencies": {},
+  "routes": [],
+  "component_map": {},
+  "key_snippets": {},
+  "entry_points": [],
+  "framework_details": null
 }

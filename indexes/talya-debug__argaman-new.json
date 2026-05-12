@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-12T15:34:15+00:00",
+  "indexed_at": "2026-05-12T17:20:27+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -191,5 +191,438 @@
   "key_files": [
     "README.md",
     "package.json"
-  ]
+  ],
+  "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-aspect-ratio": "^1.1.8",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-context-menu": "^2.2.16",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-hover-card": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-menubar": "^1.1.16",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-progress": "^1.1.8",
+    "@radix-ui/react-radio-group": "^1.3.8",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toast": "^1.2.15",
+    "@radix-ui/react-toggle": "^1.1.10",
+    "@radix-ui/react-toggle-group": "^1.1.11",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tanstack/react-query": "^5.99.2",
+    "autoprefixer": "^10.5.0",
+    "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.9.0",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.1.0",
+    "embla-carousel-react": "^8.6.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
+    "firebase": "^12.12.0",
+    "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "input-otp": "^1.4.2",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.8.0",
+    "next-themes": "^0.4.6",
+    "postcss": "^8.5.10",
+    "react": "^19.2.4",
+    "react-day-picker": "^9.14.0",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.72.1",
+    "react-resizable-panels": "^4.10.0",
+    "react-router-dom": "^7.14.1",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "vaul": "^1.1.2",
+    "zod": "^4.3.6",
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^8.0.4",
+    "xlsx": "^0.18.5"
+  },
+  "routes": [
+    "src/pages/CollectionDashboard.jsx",
+    "src/pages/CollectionTasks.jsx",
+    "src/pages/Dashboard.jsx",
+    "src/pages/FixQuoteLineOrder.jsx",
+    "src/pages/KmReport.jsx",
+    "src/pages/LeadForm.jsx",
+    "src/pages/Leads.jsx",
+    "src/pages/Links.jsx",
+    "src/pages/Login.jsx",
+    "src/pages/NewTask.jsx",
+    "src/pages/ProjectDetails.jsx",
+    "src/pages/Projects.jsx",
+    "src/pages/QuoteDetails.jsx",
+    "src/pages/Quotes.jsx",
+    "src/pages/Reports.jsx",
+    "src/pages/SubContractors.jsx",
+    "src/pages/SupplierPayments.jsx",
+    "src/pages/Tasks.jsx",
+    "src/pages/Vehicles.jsx",
+    "src/pages/WorkLogForm.jsx",
+    "/",
+    "*"
+  ],
+  "component_map": {
+    "src/pages/CollectionDashboard.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/badge",
+      "@/utils",
+      "@/components/ui/table",
+      "@/components/ui/dialog"
+    ],
+    "src/pages/CollectionTasks.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/badge",
+      "@/components/ui/input",
+      "@/utils",
+      "@/components/ui/table",
+      "@/components/ui/select",
+      "@/components/ui/dialog",
+      "@/components/ui/label",
+      "@/components/ui/textarea"
+    ],
+    "src/pages/Dashboard.jsx": [
+      "@/entities",
+      "@/utils"
+    ],
+    "src/pages/FixQuoteLineOrder.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/skeleton"
+    ],
+    "src/pages/KmReport.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label"
+    ],
+    "src/pages/LeadForm.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea",
+      "@/components/ui/select"
+    ],
+    "src/pages/Leads.jsx": [
+      "@/entities",
+      "@/api/storage",
+      "@/components/ui/button",
+      "../components/leads/LeadsTable",
+      "../components/leads/LeadForm",
+      "../components/leads/LeadFilters",
+      "@/components/ui/dialog",
+      "@/utils",
+      "@/lib/notifications"
+    ],
+    "src/pages/Links.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/utils"
+    ],
+    "src/pages/Login.jsx": [
+      "@/lib/AuthContext",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label"
+    ],
+    "src/pages/NewTask.jsx": [
+      "../components/tasks/TaskForm",
+      "@/entities",
+      "@/utils"
+    ],
+    "src/pages/ProjectDetails.jsx": [
+      "@/entities",
+      "@/components/ui/skeleton",
+      "@/components/ui/tabs",
+      "../components/projects/BillOfQuantities",
+      "../components/projects/ProcurementManagement",
+      "../components/projects/WorkLog",
+      "../components/projects/ProjectDashboard"
+    ],
+    "src/pages/Projects.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/skeleton",
+      "@/components/ui/badge",
+      "@/utils",
+      "@/components/ui/tabs"
+    ],
+    "src/pages/QuoteDetails.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/skeleton",
+      "@/components/ui/select",
+      "@/utils",
+      "../components/quotes/QuoteBuilder",
+      "../components/quotes/QuotePreview",
+      "../components/quotes/ExcelImportDialog"
+    ],
+    "src/pages/Quotes.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/components/ui/table",
+      "@/components/ui/badge",
+      "@/components/ui/input",
+      "@/components/ui/skeleton",
+      "@/utils",
+      "@/components/ui/select"
+    ],
+    "src/pages/Reports.jsx": [
+      "@/lib/exportExcel"
+    ],
+    "src/pages/SubContractors.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/table",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/select"
+    ],
+    "src/pages/SupplierPayments.jsx": [
+      "@/entities",
+      "@/components/ui/table",
+      "@/components/ui/card",
+      "@/components/ui/input",
+      "@/components/ui/button",
+      "@/components/ui/select"
+    ],
+    "src/pages/Tasks.jsx": [
+      "@/entities",
+      "@/components/ui/button",
+      "@/components/ui/dialog",
+      "../components/tasks/TaskForm",
+      "../components/tasks/TaskList",
+      "../components/tasks/TaskFilters",
+      "@/lib/notifications"
+    ],
+    "src/pages/Vehicles.jsx": [
+      "@/entities",
+      "@/lib/firebase",
+      "@/components/ui/card",
+      "@/components/ui/table",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label",
+      "@/components/ui/textarea",
+      "@/components/ui/select",
+      "@/components/ui/dialog",
+      "@/components/ui/tabs"
+    ],
+    "src/pages/WorkLogForm.jsx": [
+      "@/entities",
+      "@/api/storage",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea",
+      "@/components/ui/select",
+      "@/components/ui/label",
+      "../components/ui/SignaturePad"
+    ],
+    "src/components/dashboard/DashboardStats.jsx": [
+      "@/utils"
+    ],
+    "src/components/leads/LeadFilters.jsx": [
+      "@/components/ui/input",
+      "@/components/ui/select",
+      "@/components/ui/card"
+    ],
+    "src/components/leads/LeadForm.jsx": [
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea",
+      "@/components/ui/label",
+      "@/components/ui/select"
+    ],
+    "src/components/leads/LeadQuickActions.jsx": [
+      "@/components/ui/button",
+      "@/components/ui/badge",
+      "@/components/ui/card"
+    ],
+    "src/components/leads/LeadsTable.jsx": [
+      "@/components/ui/table",
+      "@/components/ui/badge",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/select",
+      "@/components/ui/card",
+      "@/components/ui/skeleton",
+      "@/entities",
+      "@/hooks/use-mobile"
+    ],
+    "src/components/notifications/NotificationBell.jsx": [
+      "@/lib/firebase",
+      "@/lib/firebase",
+      "@/lib/notifications"
+    ],
+    "src/components/projects/BillOfQuantities.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label",
+      "@/components/ui/select",
+      "@/components/ui/table",
+      "@/components/ui/dialog",
+      "@/components/ui/tabs",
+      "@/components/ui/badge",
+      "@/components/ui/textarea",
+      "./InvoicePDF",
+      "./DeductionsModal"
+    ],
+    "src/components/projects/CreateOrderDialog.jsx": [
+      "@/components/ui/dialog",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea",
+      "@/components/ui/label",
+      "@/components/ui/select",
+      "@/entities"
+    ],
+    "src/components/projects/DeductionsModal.jsx": [
+      "@/components/ui/dialog",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/card"
+    ],
+    "src/components/projects/ProcurementManagement.jsx": [
+      "@/entities",
+      "@/components/ui/table",
+      "@/components/ui/card",
+      "@/components/ui/input",
+      "@/components/ui/button",
+      "@/components/ui/checkbox",
+      "./SubContractorDialog",
+      "@/components/ui/select",
+      "@/components/ui/dialog",
+      "@/components/ui/label",
+      "@/components/ui/textarea",
+      "./PurchaseOrderPDF",
+      "./CreateOrderDialog"
+    ],
+    "src/components/projects/ProjectDashboard.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/progress"
+    ],
+    "src/components/projects/SubContractorDialog.jsx": [
+      "@/components/ui/dialog",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label",
+      "@/components/ui/select",
+      "@/components/ui/textarea",
+      "@/entities"
+    ],
+    "src/components/projects/WorkLog.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/table",
+      "@/components/ui/dialog",
+      "@/components/ui/avatar",
+      "./WorkLogForm"
+    ],
+    "src/components/projects/WorkLogForm.jsx": [
+      "@/entities",
+      "@/api/storage",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea",
+      "@/components/ui/card",
+      "@/components/ui/label",
+      "../ui/SignaturePad"
+    ],
+    "src/components/quotes/BtuMatchGauge.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/progress",
+      "@/components/ui/badge"
+    ],
+    "src/components/quotes/ExcelImportDialog.jsx": [
+      "@/components/ui/dialog",
+      "@/components/ui/button",
+      "@/components/ui/label",
+      "@/components/ui/input",
+      "@/components/ui/alert"
+    ],
+    "src/components/quotes/ProductSelection.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/select",
+      "@/components/ui/input",
+      "@/components/ui/badge",
+      "./BtuMatchGauge"
+    ],
+    "src/components/quotes/QuoteBuilder.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/label",
+      "@/components/ui/badge",
+      "@/components/ui/checkbox",
+      "@/components/ui/scroll-area",
+      "@/components/ui/dialog",
+      "@/components/ui/select",
+      "@/components/ui/progress"
+    ],
+    "src/components/quotes/SupplierSelection.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/badge"
+    ],
+    "src/components/tasks/TaskActivityLog.jsx": [
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/textarea",
+      "@/components/ui/skeleton",
+      "@/entities",
+      "@/entities"
+    ]
+  },
+  "key_snippets": {
+    "package.json": "{\n  \"name\": \"argaman-new\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint .\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@hello-pangea/dnd\": \"^18.0.1\",\n    \"@hookform/resolvers\": \"^5.2.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.12\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.15\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.8\",\n    \"@radix-ui/react-avatar\": \"^1.1.11\",\n    \"@radix-ui/react-checkbox\": \"^1.3.3\",\n    \"@radix-ui/react-collapsible\": \"^1.1.12\",\n    \"@radix-ui/react-context-menu\": \"^2.2.16\",\n    \"@radix-ui/react-dialog\": \"^1.1.15\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.16\",\n    \"@radix-ui/react-hover-card\": \"^1.1.15\",\n    \"@radix-ui/react-label\": \"^2.1.8\",\n    \"@radix-ui/react-menubar\": \"^1.1.16\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.14\",\n    \"@radix-ui/react-popover\": \"^1.1.15\",\n    \"@radix-ui/react-progress\": \"^1.1.8\",\n    \"@radix-ui/react-radio-group\": \"^1.3.8\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.10\",\n    \"@radix-ui/react-select\": \"^2.2.6\",\n    \"@radix-ui/react-separator\": \"^1.1.8\",\n    \"@radix-ui/react-slider\": \"^1.3.6\",\n    \"@radix-ui/react-slot\": \"^1.2.4\",\n    \"@radix-ui/react-switch\": \"^1.2.6\",\n    \"@radix-ui/react-tabs\": \"^1.1.13\",\n    \"@radix-ui/react-toast\": \"^1.2.15\",\n    \"@radix-ui/react-toggle\": \"^1.1.10\",\n    \"@radix-ui/react-toggle-group\": \"^1.1.11\",\n    \"@radix-ui/react-tooltip\": \"^1.2.8\",\n    \"@tanstack/react-query\": \"^5.99.2\",\n    \"autoprefixer\": \"^10.5.0\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"cloudinary\": \"^2.9.0\",\n    \"clsx\": \"^2.1.1\",\n    \"cmdk\": \"^1.1.1\",\n    \"date-fns\": \"^4.1.0\",\n    \"embla-carousel-react\": \"^8.6.0\",\n    \"exceljs\": \"^4.4.0\",\n    \"file-saver\": \"^2.0.5\",\n    \"firebase\": \"^12.12.0\",\n    \"framer-motion\": \"^12.38.0\",\n    \"html2canvas\": \"^1.4.1\",\n    \"input-otp\": \"^1.4.2\",\n    \"jspdf\": \"^4.2.1\",\n    \"lucide-react\": \"^1.8.0\",\n    \"next-themes\": \"^0.4.6\",\n    \"postcss\": \"^8.5.10\",\n    \"react\": \"^19.2.4\",\n    \"react-day-picker\": \"^9.14.0\",\n    \"react-dom\": \"^19.2.4\",\n    \"react-hook-form\": \"^7.72.1\",\n    \"react-resizable-panels\": \"^4.10.0\",\n    \"react-router-dom\": \"^7.14.1\",\n    \"recharts\": \"^3.8.1\",\n    \"sonner\": \"^2.0.7\",\n    \"tailwind-merge\": \"^3.5.0\",\n    \"vaul\": \"^1.1.2\",\n    \"zod\": \"^4.3.6\"\n  },\n  \"devDependencies\": {\n    \"@eslint/js\": \"^9.39.4\",\n    \"@types/react\": \"^19.2.14\",\n    \"@types/react-dom\": \"^19.2.3\",\n    \"@vitejs/plugin-react\": \"^6.0.1\",\n    \"eslint\": \"^9.39.4\",\n    \"eslint-plugin-react-hooks\": \"^7.0.1\",\n    \"eslint-plugin-react-refresh\": \"^0.5.2\",\n    \"globals\": \"^17.4.0\",\n    \"tailwindcss\": \"^3.4.17\",\n    \"tailwindcss-animate\": \"^1.0.7\",\n    \"vite\": \"^8.0.4\",\n    \"xlsx\": \"^0.18.5\"\n  }\n}\n",
+    "vite.config.js": "import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\nimport path from 'path'\n\nexport default defineConfig({\n  plugins: [react()],\n  resolve: {\n    alias: {\n      '@': path.resolve(__dirname, './src'),\n    },\n  },\n})\n",
+    "src/App.jsx": "import { Toaster } from \"@/components/ui/toaster\"\nimport { QueryClientProvider } from '@tanstack/react-query'\nimport { queryClientInstance } from '@/lib/query-client'\nimport NavigationTracker from '@/lib/NavigationTracker'\nimport { pagesConfig } from './pages.config'\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport PageNotFound from './lib/PageNotFound';\nimport { AuthProvider, useAuth } from '@/lib/AuthContext';\nimport Login from '@/pages/Login';\n\nconst { Pages, Layout, mainPage } = pagesConfig;\nconst mainPageKey = mainPage ?? Object.keys(Pages)[0];\nconst MainPage = mainPageKey ? Pages[mainPageKey] : () => <></>;\n\n// \u05d3\u05e4\u05d9\u05dd \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9\u05d9\u05dd \u2014 \u05dc\u05d0 \u05d3\u05d5\u05e8\u05e9\u05d9\u05dd \u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea\nconst PUBLIC_PAGES = ['LeadForm', 'WorkLogForm', 'KmReport'];\n\nconst LayoutWrapper = ({ children, currentPageName }) => Layout ?\n  <Layout currentPageName={currentPageName}>{children}</Layout>\n  : <>{children}</>;\n\n// \u05e8\u05db\u05d9\u05d1 \u05e9\u05de\u05d2\u05df \u05e2\u05dc \u05d4\u05d3\u05e4\u05d9\u05dd \u2014 \u05de\u05e6\u05d9\u05d2 login \u05d0\u05dd \u05dc\u05d0 \u05de\u05d7\u05d5\u05d1\u05e8\nfunction ProtectedPage({ children }) {\n  const { isAuthenticated, isLoadingAuth } = useAuth();\n\n  if (isLoadingAuth) {\n    return (\n      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Heebo' }}>\n        <p style={{ color: '#64748b', fontSize: 16 }}>\u05d8\u05d5\u05e2\u05df...</p>\n      </div>\n    );\n  }\n\n  if (!isAuthenticated) {\n    return <Login />;\n  }\n\n  return children;\n}\n\nfunction App() {\n  return (\n    <AuthProvider>\n      <QueryClientProvider client={queryClientInstance}>\n        <Router>\n          <NavigationTracker />\n          <Routes>\n            {/* \u05d3\u05e3 \u05e8\u05d0\u05e9\u05d9 \u2014 \u05de\u05d5\u05d2\u05df */}\n            <Route path=\"/\" element={\n              <ProtectedPage>\n                <LayoutWrapper currentPageName={mainPageKey}>\n                  <MainPage />\n                </LayoutWrapper>\n              </ProtectedPage>\n            } />\n\n            {/* \u05db\u05dc \u05d4\u05d3\u05e4\u05d9\u05dd */}\n            {Object.entries(Pages).map(([path, Page]) => {\n              const isPublic = PUBLIC_PAGES.includes(path);\n              const pageElement = (\n                <LayoutWrapper currentPageName={path}>\n                  <Page />\n                </LayoutWrapper>\n              );\n\n              return (\n                <Route\n                  key={path}\n                  path={`/${path}`}\n                  element={isPublic ? pageElement : <ProtectedPage>{pageElement}</ProtectedPage>}\n                />\n              );\n            })}\n\n            <Route path=\"*\" element={<PageNotFound />} />\n          </Routes>\n        </Router>\n        <Toaster />\n      </QueryClientProvider>\n    </AuthProvider>\n  )\n}\n\nexport default App\n",
+    "src/main.jsx": "import { StrictMode } from 'react'\nimport { createRoot } from 'react-dom/client'\nimport './index.css'\nimport App from './App.jsx'\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n)\n",
+    "src/pages.config.js": "import CollectionDashboard from './pages/CollectionDashboard';\nimport CollectionTasks from './pages/CollectionTasks';\nimport Dashboard from './pages/Dashboard';\nimport FixQuoteLineOrder from './pages/FixQuoteLineOrder';\nimport LeadForm from './pages/LeadForm';\nimport Leads from './pages/Leads';\nimport Links from './pages/Links';\nimport NewTask from './pages/NewTask';\nimport ProjectDetails from './pages/ProjectDetails';\nimport Projects from './pages/Projects';\nimport QuoteDetails from './pages/QuoteDetails';\nimport Quotes from './pages/Quotes';\nimport Tasks from './pages/Tasks';\nimport Reports from './pages/Reports';\nimport SubContractors from './pages/SubContractors';\nimport SupplierPayments from './pages/SupplierPayments';\nimport KmReport from './pages/KmReport';\nimport Vehicles from './pages/Vehicles';\nimport WorkLogForm from './pages/WorkLogForm';\nimport __Layout from './Layout.jsx';\n\n\nexport const PAGES = {\n    \"CollectionDashboard\": CollectionDashboard,\n    \"CollectionTasks\": CollectionTasks,\n    \"Dashboard\": Dashboard,\n    \"FixQuoteLineOrder\": FixQuoteLineOrder,\n    \"LeadForm\": LeadForm,\n    \"Leads\": Leads,\n    \"Links\": Links,\n    \"NewTask\": NewTask,\n    \"ProjectDetails\": ProjectDetails,\n    \"Projects\": Projects,\n    \"QuoteDetails\": QuoteDetails,\n    \"Quotes\": Quotes,\n    \"Reports\": Reports,\n    \"SubContractors\": SubContractors,\n    \"SupplierPayments\": SupplierPayments,\n    \"KmReport\": KmReport,\n    \"Tasks\": Tasks,\n    \"Vehicles\": Vehicles,\n    \"WorkLogForm\": WorkLogForm,\n}\n\nexport const pagesConfig = {\n    mainPage: \"Dashboard\",\n    Pages: PAGES,\n    Layout: __Layout,\n};\n",
+    "src/api/db.js": "import {\n  collection,\n  doc,\n  getDocs,\n  getDoc,\n  addDoc,\n  updateDoc,\n  deleteDoc,\n  query,\n  where,\n  orderBy,\n  limit,\n  startAfter,\n  Timestamp\n} from 'firebase/firestore';\nimport { db } from '../lib/firebase';\n\n// \u05de\u05e4\u05d4 \u05d0\u05d5\u05e4\u05e8\u05d8\u05d5\u05e8\u05d9\u05dd \u05de\u05e7\u05d5\u05e6\u05e8\u05d9\u05dd \u05dc\u05d0\u05d5\u05e4\u05e8\u05d8\u05d5\u05e8\u05d9\u05dd \u05e9\u05dc Firestore\nconst operatorMap = {\n  $eq: '==',\n  $ne: '!=',\n  $gt: '>',\n  $gte: '>=',\n  $lt: '<',\n  $lte: '<=',\n  $in: 'in',\n  $contains: 'array-contains',\n  $containsAny: 'array-contains-any'\n};\n\n// \u05d4\u05de\u05e8\u05ea \u05de\u05e1\u05de\u05da Firestore \u05dc\u05d0\u05d5\u05d1\u05d9\u05d9\u05e7\u05d8 \u05e8\u05d2\u05d9\u05dc \u05e2\u05dd id\nfunction docToObject(docSnap) {\n  if (!docSnap.exists()) return null;\n  const data = docSnap.data();\n  // \u05d4\u05de\u05e8\u05ea Timestamp \u05dc\u05ea\u05d0\u05e8\u05d9\u05da \u05e8\u05d2\u05d9\u05dc\n  const converted = {};\n  for (const [key, value] of Object.entries(data)) {\n    if (value instanceof Timestamp) {\n      converted[key] = value.toDate().toISOString();\n    } else {\n      converted[key] = value;\n    }\n  }\n  return { id: docSnap.id, ...converted };\n}\n\n/**\n * \u05d9\u05d5\u05e6\u05e8 \u05e9\u05db\u05d1\u05ea CRUD \u05dc\u05e7\u05d5\u05dc\u05e7\u05e6\u05d9\u05d4 \u05d1-Firestore\n * \u05de\u05d7\u05dc\u05d9\u05e3 \u05d0\u05ea \u05d4-SDK \u05e9\u05dc Base44 \u05d1\u05d0\u05d5\u05e4\u05df \u05e9\u05e7\u05d5\u05e3\n * @param {string} collectionName - \u05e9\u05dd \u05d4\u05e7\u05d5\u05dc\u05e7\u05e6\u05d9\u05d4 \u05d1-Firestore\n */\nexport function createEntity(collectionName) {\n  const colRef = collection(db, collectionName);\n\n  return {\n    /**\n     * \u05e9\u05dc\u05d9\u05e4\u05ea \u05db\u05dc \u05d4\u05de\u05e1\u05de\u05db\u05d9\u05dd \u05de\u05d4\u05e7\u05d5\u05dc\u05e7\u05e6\u05d9\u05d4\n     * @param {string} [orderField] - \u05e9\u05d3\u05d4 \u05dc\u05de\u05d9\u05d5\u05df (\u05e2\u05dd - \u05dc\u05e1\u05d3\u05e8 \u05d9\u05d5\u05e8\u05d3, \u05dc\u05de\u05e9\u05dc '-created_date')\n     * @param {number} [limitCount] - \u05de\u05e1\u05e4\u05e8 \u05de\u05e7\u05e1\u05d9\u05de\u05dc\u05d9 \u05e9\u05dc \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea\n     * @param {number} [skip] - \u05de\u05e1\u05e4\u05e8 \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05dc\u05d3\u05dc\u05d2 \u05e2\u05dc\u05d9\u05d4\u05df (\u05dc\u05d0 \u05e0\u05ea\u05de\u05da \u05d9\u05e9\u05d9\u05e8\u05d5\u05ea, \u05de\u05e9\u05ea\u05de\u05e9 \u05d1-startAfter)\n     */\n    async list(orderField, limitCount, skip) {\n      const constraints = [];\n\n      // \u05de\u05d9\u05d5\u05df\n      if (orderField) {\n        const desc = orderField.startsWith('-');\n        const field = desc ? orderField.slice(1) : orderField;\n        constraints.push(orderBy(field, desc ? 'desc' : 'asc'));\n      }\n\n      // \u05d4\u05d2\u05d1\u05dc\u05ea \u05db\u05de\u05d5\u05ea\n      if (limitCount) {\n        constraints.push(limit(limitCount));\n      }\n\n      const q = query(colRef, ...constraints);\n      const snapshot = await getDocs(q);\n      return snapshot.docs.map(docToObject);\n    },\n\n    /**\n     * \u05e9\u05dc\u05d9\u05e4\u05ea \u05de\u05e1\u05de\u05da \u05d1\u05d5\u05d3\u05d3 \u05dc\u05e4\u05d9 ID\n     * @param {string} id\n     */\n    async get(id) {\n      const docRef = doc(db, collectionName, String(id));\n      const docSnap = await getDoc(docRef);\n      if (!docSnap.exists()) {\n        throw new Error(`\u05de\u05e1\u05de\u05da ${id} \u05dc\u05d0 \u05e0\u05de\u05e6\u05d0 \u05d1-${collectionName}`);\n      }\n      return docToObject(docSnap);\n    },\n\n    /**\n     * \u05d9\u05e6\u05d9\u05e8\u05ea \u05de\u05e1\u05de\u05da \u05d7\u05d3\u05e9\n     * @param {object} data - \u05d4\u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05dc\u05e9\u05de\u05d9\u05e8\u05d4\n     */\n    async create(data) {\n      const now = new Date().toISOString();\n      const docData = {\n        ...data,\n        createdAt: now,\n        created_date: now,\n        updatedAt: now,\n        updated_date: now\n      };\n      const docRef = await addDoc(colRef, docData);\n      return { id: docRef.id, ...docData };\n    },\n\n    /**\n     * \u05e2\u05d3\u05db\u05d5\u05df \u05de\u05e1\u05de\u05da \u05e7\u05d9\u05d9\u05dd\n     * @param {string} id\n     * @param {object} data - \u05d4\u05e9\u05d3\u05d5\u05ea \u05dc\u05e2\u05d3\u05db\u05d5\u05df\n     */\n    async update(id, data) {\n      const docRef = doc(db, collectionName, String(id));\n      const now = new Date().toISOString();\n      const updateData = {\n        ...data,\n        updatedAt: now,\n        updated_date: now\n      };\n      await updateDoc(docRef, updateData);\n      return { id, ...updateData };\n    },\n\n    /**\n     * \u05de\u05d7\u05d9\u05e7\u05ea \u05de\u05e1\u05de\u05da\n     * @param {string} id\n     */\n    async delete(id) {\n      const docRef = doc(db, collectionName, String(id));\n      await deleteDoc(docRef);\n      return { id };\n    },\n\n    /**\n     * \u05e1\u05d9\u05e0\u05d5\u05df \u05de\u05e1\u05de\u05db\u05d9\u05dd \u05dc\u05e4\u05d9 \u05ea\u05e0\u05d0\u05d9\u05dd\n     * \u05ea\u05d5\u05de\u05da \u05d1\u05e4\u05d5\u05e8\u05de\u05d8 \u05e4\u05e9\u05d5\u05d8: { field: value } \u05dc\u05e9\u05d5\u05d5\u05d9\u05d5\u05df\n     * \u05d0\u05d5 \u05de\u05ea\u05e7\u05d3\u05dd: { field: { $gt: value } } \u05dc\u05d0\u05d5\u05e4\u05e8\u05d8\u05d5\u05e8\u05d9\u05dd\n     * @param {object} filters - \u05ea\u05e0\u05d0\u05d9 \u05e1\u05d9\u05e0\u05d5\u05df\n     * @param {string} [orderField] - \u05e9\u05d3\u05d4 \u05dc\u05de\u05d9\u05d5\u05df\n     * @param {num",
+    "src/lib/utils.js": "import { clsx } from \"clsx\"\nimport { twMerge } from \"tailwind-merge\"\n\nexport function cn(...inputs) {\n  return twMerge(clsx(inputs))\n}\n",
+    "tailwind.config.js": "/** @type {import('tailwindcss').Config} */\nmodule.exports = {\n    darkMode: [\"class\"],\n    content: [\"./index.html\", \"./src/**/*.{ts,tsx,js,jsx}\"],\n  theme: {\n  \textend: {\n  \t\tborderRadius: {\n  \t\t\tlg: 'var(--radius)',\n  \t\t\tmd: 'calc(var(--radius) - 2px)',\n  \t\t\tsm: 'calc(var(--radius) - 4px)'\n  \t\t},\n  \t\tcolors: {\n  \t\t\tbackground: 'hsl(var(--background))',\n  \t\t\tforeground: 'hsl(var(--foreground))',\n  \t\t\tcard: {\n  \t\t\t\tDEFAULT: 'hsl(var(--card))',\n  \t\t\t\tforeground: 'hsl(var(--card-foreground))'\n  \t\t\t},\n  \t\t\tpopover: {\n  \t\t\t\tDEFAULT: 'hsl(var(--popover))',\n  \t\t\t\tforeground: 'hsl(var(--popover-foreground))'\n  \t\t\t},\n  \t\t\tprimary: {\n  \t\t\t\tDEFAULT: 'hsl(var(--primary))',\n  \t\t\t\tforeground: 'hsl(var(--primary-foreground))'\n  \t\t\t},\n  \t\t\tsecondary: {\n  \t\t\t\tDEFAULT: 'hsl(var(--secondary))',\n  \t\t\t\tforeground: 'hsl(var(--secondary-foreground))'\n  \t\t\t},\n  \t\t\tmuted: {\n  \t\t\t\tDEFAULT: 'hsl(var(--muted))',\n  \t\t\t\tforeground: 'hsl(var(--muted-foreground))'\n  \t\t\t},\n  \t\t\taccent: {\n  \t\t\t\tDEFAULT: 'hsl(var(--accent))',\n  \t\t\t\tforeground: 'hsl(var(--accent-foreground))'\n  \t\t\t},\n  \t\t\tdestructive: {\n  \t\t\t\tDEFAULT: 'hsl(var(--destructive))',\n  \t\t\t\tforeground: 'hsl(var(--destructive-foreground))'\n  \t\t\t},\n  \t\t\tborder: 'hsl(var(--border))',\n  \t\t\tinput: 'hsl(var(--input))',\n  \t\t\tring: 'hsl(var(--ring))',\n  \t\t\tchart: {\n  \t\t\t\t'1': 'hsl(var(--chart-1))',\n  \t\t\t\t'2': 'hsl(var(--chart-2))',\n  \t\t\t\t'3': 'hsl(var(--chart-3))',\n  \t\t\t\t'4': 'hsl(var(--chart-4))',\n  \t\t\t\t'5': 'hsl(var(--chart-5))'\n  \t\t\t},\n  \t\t\tsidebar: {\n  \t\t\t\tDEFAULT: 'hsl(var(--sidebar-background))',\n  \t\t\t\tforeground: 'hsl(var(--sidebar-foreground))',\n  \t\t\t\tprimary: 'hsl(var(--sidebar-primary))',\n  \t\t\t\t'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',\n  \t\t\t\taccent: 'hsl(var(--sidebar-accent))',\n  \t\t\t\t'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',\n  \t\t\t\tborder: 'hsl(var(--sidebar-border))',\n  \t\t\t\tring: 'hsl(var(--sidebar-ring))'\n  \t\t\t},\n  \t\t\t'argaman-red': '#dc2626',\n  \t\t\t'argaman-blue': '#3b82f6',\n  \t\t\tsurface: '#1a1d27',\n  \t\t\t'surface-hover': '#232736',\n  \t\t\t'dark-bg': '#0f1117',\n  \t\t\t'dark-sidebar': '#141720',\n  \t\t\t'dark-border': '#2d3348',\n  \t\t},\n  \t\tkeyframes: {\n  \t\t\t'accordion-down': {\n  \t\t\t\tfrom: {\n  \t\t\t\t\theight: '0'\n  \t\t\t\t},\n  \t\t\t\tto: {\n  \t\t\t\t\theight: 'var(--radix-accordion-content-height)'\n  \t\t\t\t}\n  \t\t\t},\n  \t\t\t'accordion-up': {\n  \t\t\t\tfrom: {\n  \t\t\t\t\theight: 'var(--radix-accordion-content-height)'\n  \t\t\t\t},\n  \t\t\t\tto: {\n  \t\t\t\t\theight: '0'\n  \t\t\t\t}\n  \t\t\t}\n  \t\t},\n  \t\tanimation: {\n  \t\t\t'accordion-down': 'accordion-down 0.2s ease-out',\n  \t\t\t'accordion-up': 'accordion-up 0.2s ease-out'\n  \t\t}\n  \t}\n  },\n  plugins: [require(\"tailwindcss-animate\")],\n}\n"
+  },
+  "entry_points": [
+    "src/main.jsx",
+    "src/App.jsx",
+    "index.html"
+  ],
+  "framework_details": "React ^19.2.4, Vite ^8.0.4, Tailwind CSS, Firebase ^12.12.0, React Query, React Router, shadcn/ui, Vercel deployment, Firebase config at src/lib/firebase.js"
 }
