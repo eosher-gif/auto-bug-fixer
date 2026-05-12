@@ -17,6 +17,18 @@ on:
   schedule:
     - cron: "0 4 * * *"
   workflow_dispatch:
+  # Push trigger fires when the registry, the indexer code, or this
+  # workflow itself changes — that way a deploy that touches any of
+  # those refreshes the on-disk indexes immediately, without waiting
+  # for the next 04:00 UTC cron tick. ``indexes/`` is intentionally
+  # excluded so the auto-commit at the end of this job does NOT loop.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reindex.yml"
+      - "repos.yaml"
+      - "src/auto_bug_fixer/indexer/**"
+      - "src/auto_bug_fixer/registry.py"
 
 concurrency:
   group: reindex
