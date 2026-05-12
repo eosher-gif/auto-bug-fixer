@@ -119,60 +119,27 @@ class RepoIndex:
         return cls(**filtered)
 
     def to_prompt_block(self) -> str:
-        """Render a compact textual block for inclusion in Claude's prompt."""
-        tree_block = "\n".join(self.tree) if self.tree else "(tree omitted)"
-        key_block = "\n".join(f"- {p}" for p in self.key_files) or "(none)"
-        readme_block = self.readme_excerpt or "(no README)"
+        """Render a MINIMAL context block to save tokens.
 
-        parts = [
-            f"Repository: {self.url} (branch: {self.default_branch})",
-            f"Indexed at (UTC): {self.indexed_at}",
-            f"Detected language: {self.detected_language or 'unknown'}",
-            f"Suggested test command: {self.suggested_test_command or 'unknown'}",
-            f"Description:\n{self.description or '(none)'}",
-        ]
-
-        if self.framework_details:
-            parts.append(f"\nFramework & stack:\n{self.framework_details}")
-
-        if self.dependencies:
-            deps = "\n".join(
-                f"  {k}: {v}" for k, v in sorted(self.dependencies.items())
-            )
-            parts.append(f"\nDependencies ({len(self.dependencies)}):\n{deps}")
-
-        if self.entry_points:
-            eps = "\n".join(f"  - {e}" for e in self.entry_points)
-            parts.append(f"\nEntry points:\n{eps}")
-
+        Keep it under ~1500 chars. Claude can use tools to read more.
+        """
+        # Only pages/routes — most useful for navigation bugs
+        routes_block = ""
         if self.routes:
-            routes = "\n".join(f"  - {r}" for r in self.routes)
-            parts.append(f"\nRoutes/pages ({len(self.routes)}):\n{routes}")
-
-        if self.component_map:
-            cmap = "\n".join(
-                f"  {comp} -> imports: {', '.join(deps)}"
-                for comp, deps in sorted(self.component_map.items())
+            routes_block = "\nPages: " + ", ".join(
+                r.rsplit("/", 1)[-1].replace(".jsx", "").replace(".tsx", "")
+                for r in self.routes[:15]
             )
-            parts.append(f"\nComponent import map:\n{cmap}")
 
-        parts.append(f"\nKey files present:\n{key_block}")
-        parts.append(
-            f"\nTop-of-tree (max {MAX_TREE_DEPTH} levels, "
-            f"{MAX_TREE_ENTRIES} entries):\n{tree_block}"
+        framework = f"\nStack: {self.framework_details}" if self.framework_details else ""
+        entry = f"\nEntry: {', '.join(self.entry_points)}" if self.entry_points else ""
+
+        return (
+            f"Repo: {self.url} (branch: {self.default_branch})\n"
+            f"Language: {self.detected_language or '?'}"
+            f"{framework}{entry}{routes_block}\n"
+            f"Use list_dir and read_file to explore. Fix fast.\n"
         )
-
-        if self.key_snippets:
-            snippets = "\n".join(
-                f"--- {path} ---\n{content}\n--- end {path} ---"
-                for path, content in self.key_snippets.items()
-            )
-            parts.append(f"\nKey file snippets:\n{snippets}")
-
-        parts.append(
-            f"\nREADME excerpt (first {MAX_README_BYTES} bytes):\n{readme_block}"
-        )
-        return "\n".join(parts) + "\n"
 
 
 class RepoIndexBuilder:

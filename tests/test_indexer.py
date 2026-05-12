@@ -99,9 +99,9 @@ def test_to_prompt_block_contains_essentials(fake_repo_tree: Path) -> None:
     )
     block = index.to_prompt_block()
     assert "https://github.com/acme/widgets" in block
-    assert "cool service" in block
-    assert "pyproject.toml" in block
-    assert "Top-of-tree" in block
+    assert "main" in block
+    assert "python" in block
+    assert "Fix fast" in block
 
 
 def test_roundtrip_dict_preserves_fields(fake_repo_tree: Path) -> None:

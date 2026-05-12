@@ -21,22 +21,14 @@ from auto_bug_fixer.models import Bug, FixOutcome
 log = get_logger(__name__)
 
 SYSTEM_PROMPT = """\
-You are an autonomous senior software engineer fixing a customer-reported bug.
+You fix bugs in a small React+Firebase+Vite storefront. Be fast and minimal.
 
-Workflow:
-1. Use list_dir / read_file / run_cmd to understand the repository.
-2. Identify the smallest possible change that fixes the reported bug.
-3. Apply changes via write_file (always send the FULL new file content).
-4. If a test framework is obvious, run the closest tests with run_cmd.
-5. Call the `finish` tool exactly once with a short markdown summary.
+1. Read only the files you need. Don't explore broadly — go straight to the bug.
+2. Make the smallest fix. One file if possible.
+3. write_file must contain the FULL file content.
+4. Call `finish` with a one-line summary. Do NOT continue after finish.
 
-Hard rules:
-- Make minimal, targeted edits. Do not refactor unrelated code.
-- Do not invent files or APIs you have not read.
-- Do not modify CI configuration, lockfiles, or dependency versions unless
-  the bug is explicitly about them.
-- If you cannot reproduce or locate the bug after reasonable investigation,
-  call `finish` with a summary explaining what you found and what is missing.
+NEVER touch: .env, firebase.js, vercel.json, package-lock.json, yarn.lock.
 """
 
 
@@ -172,31 +164,13 @@ def _build_initial_user_message(
     forbidden_paths: tuple[str, ...] = (),
     history_block: str = "",
 ) -> str:
-    context_block = (
-        "\n--- Pre-built repository index ---\n"
-        f"{repo_index.to_prompt_block()}\n--- end index ---\n"
-        if repo_index is not None
-        else ""
-    )
-    forbidden_block = ""
-    if forbidden_paths:
-        paths_list = "\n".join(f"  - {p}" for p in forbidden_paths)
-        forbidden_block = (
-            "\n--- FORBIDDEN FILES (do NOT read or modify these) ---\n"
-            f"{paths_list}\n--- end forbidden ---\n"
-        )
-    history_section = f"\n{history_block}\n" if history_block else ""
+    context = repo_index.to_prompt_block() if repo_index else ""
+    history = f"\nPast fixes:\n{history_block}" if history_block else ""
     return (
-        f"Bug ID: {bug.id}\n"
-        f"Title: {bug.title}\n"
-        f"Repository: {bug.repo_url}\n"
-        f"Base branch: {bug.base_branch}\n\n"
-        f"--- Customer description ---\n{bug.description}\n--- end ---\n"
-        f"{context_block}"
-        f"{forbidden_block}"
-        f"{history_section}\n"
-        "The repository is already cloned at the sandbox root '.'. "
-        "Investigate, fix, and call `finish` when done."
+        f"Fix this bug (ID: {bug.id}):\n"
+        f"{bug.description}\n\n"
+        f"{context}{history}\n"
+        "Repo is cloned at '.'. Read the relevant file, fix it, call finish."
     )
 
 
