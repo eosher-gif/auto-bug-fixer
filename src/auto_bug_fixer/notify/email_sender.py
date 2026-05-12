@@ -1,9 +1,21 @@
-"""SMTP email sender for fix-confirmation messages."""
+"""SMTP email sender for fix-confirmation messages.
+
+Emails are produced as multipart/alternative with both a plain-text and a
+rich Hebrew HTML version. End recipients are non-developer customers,
+so the HTML body is the primary view: it shows customer details, the
+original ticket, what the bot did, files changed, and a big call-to-
+action linking to the GitHub PR. The plain-text version contains the
+same information without markup so that it survives any client that
+strips HTML.
+"""
 from __future__ import annotations
 
+import html
 import smtplib
 import ssl
+from datetime import datetime, timezone
 from email.message import EmailMessage
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from auto_bug_fixer.config import Settings
 from auto_bug_fixer.logging_setup import get_logger
@@ -12,6 +24,25 @@ from auto_bug_fixer.models import Bug, FixOutcome, PullRequest
 log = get_logger(__name__)
 
 SMTP_TIMEOUT_SECONDS = 30
+PRODUCT_NAME = "auto-bug-fixer"
+SUBJECT_BRAND = f"[{PRODUCT_NAME}]"
+
+
+def _resolve_israel_tz() -> tuple[ZoneInfo | timezone, str]:
+    """Best-effort Asia/Jerusalem; falls back to UTC if tzdata is missing.
+
+    Windows ships no IANA tz database by default. We do not want to add
+    the ``tzdata`` package just for a single timestamp string in an
+    email, and the production runtime (Linux CI) has the database
+    built in.
+    """
+    try:
+        return ZoneInfo("Asia/Jerusalem"), "%d/%m/%Y %H:%M %Z"
+    except ZoneInfoNotFoundError:
+        return timezone.utc, "%d/%m/%Y %H:%M UTC"
+
+
+ISRAEL_TZ, _NOW_FMT = _resolve_israel_tz()
 
 
 class EmailDeliveryError(RuntimeError):
@@ -31,47 +62,54 @@ class EmailNotifier:
         outcome: FixOutcome,
         pr: PullRequest,
     ) -> None:
-        """Send a success email about ``pr`` to the bug reporter (if known)."""
+        """Send a rich Hebrew success email about ``pr`` to the bug reporter."""
         if not self._settings.email_enabled:
             log.info("skip_email_disabled", bug_id=bug.id)
             return
         if not bug.reporter_email:
             log.info("skip_email_no_reporter", bug_id=bug.id)
             return
-        subject = f"[auto-bug-fixer] PR ready for bug {bug.id}: {bug.title}"
-        body = (
-            f"Hi,\n\n"
-            f"An automated fix has been opened for bug {bug.id}.\n\n"
-            f"Title: {bug.title}\n"
-            f"Pull request: {pr.url}\n"
-            f"Branch: {pr.branch}\n\n"
-            f"Summary of the change:\n{outcome.summary}\n\n"
-            f"Files changed:\n"
-            + "\n".join(f"  - {p}" for p in outcome.changed_files)
-            + "\n\nPlease review and confirm.\n"
+        subject = (
+            f"{SUBJECT_BRAND} תיקון מוכן לבדיקה — באג {bug.id}: "
+            f"{_short(bug.title, 80)}"
         )
-        self._send(to=bug.reporter_email, subject=subject, body=body)
+        text_body = _render_success_text(bug, outcome, pr)
+        html_body = _render_success_html(bug, outcome, pr)
+        self._send(
+            to=bug.reporter_email,
+            subject=subject,
+            text_body=text_body,
+            html_body=html_body,
+        )
 
     def notify_failure(self, bug: Bug, outcome: FixOutcome) -> None:
-        """Send a failure email so a human knows to take over."""
+        """Send a rich Hebrew failure email so a human knows to take over."""
         if not self._settings.email_enabled:
             log.info("skip_email_disabled", bug_id=bug.id)
             return
         if not bug.reporter_email:
             log.info("skip_email_no_reporter", bug_id=bug.id)
             return
-        subject = f"[auto-bug-fixer] Could not auto-fix bug {bug.id}"
-        body = (
-            f"Hi,\n\n"
-            f"The auto bug-fixer was unable to produce a fix for bug {bug.id}.\n\n"
-            f"Title: {bug.title}\n"
-            f"Reason: {outcome.error or 'unknown'}\n"
-            f"Agent notes:\n{outcome.summary}\n\n"
-            f"A human will need to look at this one.\n"
+        subject = (
+            f"{SUBJECT_BRAND} Could not auto-fix bug {bug.id} — נדרש טיפול ידני"
         )
-        self._send(to=bug.reporter_email, subject=subject, body=body)
+        text_body = _render_failure_text(bug, outcome)
+        html_body = _render_failure_html(bug, outcome)
+        self._send(
+            to=bug.reporter_email,
+            subject=subject,
+            text_body=text_body,
+            html_body=html_body,
+        )
 
-    def _send(self, *, to: str, subject: str, body: str) -> None:
+    def _send(
+        self,
+        *,
+        to: str,
+        subject: str,
+        text_body: str,
+        html_body: str,
+    ) -> None:
         s = self._settings
         message = EmailMessage()
         message["From"] = s.notify_from
@@ -79,7 +117,8 @@ class EmailNotifier:
         if s.notify_cc:
             message["Cc"] = s.notify_cc
         message["Subject"] = subject
-        message.set_content(body)
+        message.set_content(text_body)
+        message.add_alternative(html_body, subtype="html")
 
         recipients = [to] + [
             addr.strip() for addr in s.notify_cc.split(",") if addr.strip()
@@ -94,3 +133,354 @@ class EmailNotifier:
             raise EmailDeliveryError(f"SMTP send failed: {exc}") from exc
 
         log.info("email_sent", to=to, subject=subject)
+
+
+# ---------------------------------------------------------------------------
+# Plain-text rendering
+# ---------------------------------------------------------------------------
+
+
+def _render_success_text(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
+    """Plain-text fallback. Mirrors the HTML version section by section."""
+    files = "\n".join(f"  - {p}" for p in outcome.changed_files) or "  (אין)"
+    return (
+        f"{PRODUCT_NAME} — תיקון אוטומטי מוכן לבדיקה\n"
+        f"{'=' * 60}\n\n"
+        "שלום,\n"
+        "בוט התיקון האוטומטי סיים לטפל בתקלה ופתח Pull Request.\n"
+        "בבקשה עברי על השינוי, ואם הוא נראה לך — מזגי את ה-PR.\n\n"
+        "--- פרטי התקלה ---\n"
+        f"מזהה תקלה   : {bug.id}\n"
+        f"פרויקט      : {_or_dash(bug.project_name)}\n"
+        f"לקוח/ה      : {_or_dash(bug.customer_name)}\n"
+        f"מייל הלקוח/ה: {_or_dash(bug.reporter_email)}\n"
+        f"סוג טיקט    : {bug.ticket_type}\n"
+        f"זמן שליחה   : {_now_str()}\n\n"
+        "--- תיאור התקלה (מהלקוח) ---\n"
+        f"{bug.description}\n\n"
+        "--- מה הבוט עשה ---\n"
+        f"{outcome.summary}\n\n"
+        f"--- קבצים שהשתנו ({len(outcome.changed_files)}) ---\n"
+        f"{files}\n\n"
+        "--- ה-Pull Request ---\n"
+        f"כותרת   : {pr.title}\n"
+        f"מספר    : #{pr.number}\n"
+        f"סניף חדש: {pr.branch}\n"
+        f"סניף בסיס: {bug.base_branch}\n"
+        f"ריפו    : {bug.repo_url}\n"
+        f"קישור   : {pr.url}\n\n"
+        "--- הצעדים הבאים ---\n"
+        "  1. פתחי את ה-PR בקישור למעלה.\n"
+        "  2. עברי על השינויים בלשונית \"Files changed\".\n"
+        "  3. אם הכל בסדר — לחצי \"Merge pull request\".\n"
+        "  4. אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.\n\n"
+        "בהצלחה!\n"
+        f"-- {PRODUCT_NAME}\n"
+    )
+
+
+def _render_failure_text(bug: Bug, outcome: FixOutcome) -> str:
+    return (
+        f"{PRODUCT_NAME} — לא הצלחנו לתקן את הבאג אוטומטית\n"
+        f"{'=' * 60}\n\n"
+        "שלום,\n"
+        "בוט התיקון לא הצליח להפיק תיקון תקין לתקלה הבאה.\n"
+        "נדרש טיפול ידני של מפתח/ת.\n\n"
+        "--- פרטי התקלה ---\n"
+        f"מזהה תקלה   : {bug.id}\n"
+        f"פרויקט      : {_or_dash(bug.project_name)}\n"
+        f"לקוח/ה      : {_or_dash(bug.customer_name)}\n"
+        f"מייל הלקוח/ה: {_or_dash(bug.reporter_email)}\n"
+        f"זמן ניסיון  : {_now_str()}\n\n"
+        "--- תיאור התקלה (מהלקוח) ---\n"
+        f"{bug.description}\n\n"
+        "--- מה השתבש ---\n"
+        f"{outcome.error or 'לא ידוע'}\n\n"
+        "--- הערות הבוט ---\n"
+        f"{outcome.summary}\n\n"
+        f"-- {PRODUCT_NAME}\n"
+    )
+
+
+# ---------------------------------------------------------------------------
+# HTML rendering
+# ---------------------------------------------------------------------------
+
+
+def _render_success_html(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
+    files_html = (
+        "".join(
+            f'<li><code style="font-family:Consolas,Monaco,monospace;'
+            f'background:#f4f4f4;padding:2px 6px;border-radius:3px;">'
+            f'{html.escape(p)}</code></li>'
+            for p in outcome.changed_files
+        )
+        or "<li><em>אין</em></li>"
+    )
+    sections = [
+        _banner_html(
+            emoji="✅",
+            heading="התיקון מוכן לבדיקה",
+            subheading=(
+                f"באג <code>{html.escape(bug.id)}</code> טופל אוטומטית "
+                "ונפתח Pull Request לבדיקתך."
+            ),
+            accent="#2e7d32",
+        ),
+        _details_card_html(
+            "פרטי התקלה",
+            rows=[
+                ("מזהה תקלה", html.escape(bug.id), True),
+                ("פרויקט", _or_dash_html(bug.project_name), False),
+                ("לקוח/ה", _or_dash_html(bug.customer_name), False),
+                ("מייל הלקוח/ה", _or_dash_html(bug.reporter_email), False),
+                ("סוג טיקט", html.escape(bug.ticket_type), False),
+                ("זמן שליחת המייל", html.escape(_now_str()), False),
+            ],
+        ),
+        _quote_card_html(
+            'תיאור התקלה (כפי שדווחה ע"י הלקוח/ה)',
+            bug.description,
+        ),
+        _quote_card_html("סיכום מה שהבוט עשה", outcome.summary),
+        _list_card_html(
+            f"קבצים שהשתנו ({len(outcome.changed_files)})",
+            files_html,
+        ),
+        _details_card_html(
+            "פרטי ה-Pull Request",
+            rows=[
+                ("כותרת", html.escape(pr.title), False),
+                ("מספר", f"#{pr.number}", True),
+                ("סניף חדש", html.escape(pr.branch), True),
+                ("סניף בסיס", html.escape(bug.base_branch), True),
+                ("ריפו", _link_html(bug.repo_url), False),
+            ],
+        ),
+        _cta_html("עברי לבדיקת ה-PR ב-GitHub", pr.url, "#2e7d32"),
+        _next_steps_html(
+            [
+                'פתחי את ה-PR בקישור למעלה.',
+                'עברי על השינויים בלשונית "Files changed".',
+                'אם הכל בסדר — לחצי "Merge pull request".',
+                'אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.',
+            ]
+        ),
+    ]
+    return _shell_html(
+        title=f"{PRODUCT_NAME} — תיקון מוכן לבדיקה",
+        accent="#2e7d32",
+        sections=sections,
+    )
+
+
+def _render_failure_html(bug: Bug, outcome: FixOutcome) -> str:
+    sections = [
+        _banner_html(
+            emoji="⚠️",
+            heading="לא הצלחנו לתקן את הבאג אוטומטית",
+            subheading=(
+                f"באג <code>{html.escape(bug.id)}</code> דורש טיפול ידני "
+                "של מפתח/ת."
+            ),
+            accent="#c62828",
+        ),
+        _details_card_html(
+            "פרטי התקלה",
+            rows=[
+                ("מזהה תקלה", html.escape(bug.id), True),
+                ("פרויקט", _or_dash_html(bug.project_name), False),
+                ("לקוח/ה", _or_dash_html(bug.customer_name), False),
+                ("מייל הלקוח/ה", _or_dash_html(bug.reporter_email), False),
+                ("זמן ניסיון", html.escape(_now_str()), False),
+            ],
+        ),
+        _quote_card_html(
+            'תיאור התקלה (כפי שדווחה ע"י הלקוח/ה)',
+            bug.description,
+        ),
+        _quote_card_html("מה השתבש", outcome.error or "לא ידוע"),
+        _quote_card_html("הערות הבוט", outcome.summary),
+    ]
+    return _shell_html(
+        title=f"{PRODUCT_NAME} — תיקון אוטומטי נכשל",
+        accent="#c62828",
+        sections=sections,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HTML primitives
+# ---------------------------------------------------------------------------
+
+_BASE_FONT = (
+    "font-family:'Segoe UI',Tahoma,Arial,'Helvetica Neue',Helvetica,sans-serif;"
+)
+
+
+def _shell_html(*, title: str, accent: str, sections: list[str]) -> str:
+    body = "\n".join(sections)
+    return (
+        '<!doctype html>'
+        '<html dir="rtl" lang="he">'
+        '<head>'
+        '<meta charset="utf-8">'
+        f'<title>{html.escape(title)}</title>'
+        '</head>'
+        f'<body style="margin:0;padding:0;background:#f0f2f5;{_BASE_FONT}'
+        'color:#1f2933;direction:rtl;text-align:right;">'
+        '<div style="max-width:680px;margin:0 auto;padding:24px;">'
+        f'<div style="background:#ffffff;border-radius:8px;'
+        f'border-top:6px solid {accent};box-shadow:0 1px 3px rgba(0,0,0,0.08);'
+        'overflow:hidden;">'
+        f'{body}'
+        '<div style="padding:16px 24px;background:#fafafa;'
+        'border-top:1px solid #eee;font-size:12px;color:#888;">'
+        f'נשלח אוטומטית ע"י <strong>{html.escape(PRODUCT_NAME)}</strong>. '
+        'אין צורך להשיב למייל זה.'
+        '</div>'
+        '</div>'
+        '</div>'
+        '</body></html>'
+    )
+
+
+def _banner_html(*, emoji: str, heading: str, subheading: str, accent: str) -> str:
+    return (
+        '<div style="padding:28px 24px 18px 24px;text-align:center;">'
+        f'<div style="font-size:42px;line-height:1;margin-bottom:8px;">{emoji}</div>'
+        f'<div style="font-size:22px;font-weight:600;color:{accent};'
+        f'margin-bottom:6px;">{html.escape(heading)}</div>'
+        f'<div style="font-size:14px;color:#555;">{subheading}</div>'
+        '</div>'
+    )
+
+
+def _details_card_html(title: str, *, rows: list[tuple[str, str, bool]]) -> str:
+    """Render a label/value table.
+
+    Each row is ``(label, value_html, mono)`` — when ``mono`` is True the
+    value is rendered in a monospace box (good for IDs / branches / paths).
+    The ``value_html`` field is treated as raw HTML, callers are
+    responsible for escaping it.
+    """
+    rows_html = "".join(
+        '<tr>'
+        '<td style="padding:6px 0;font-size:13px;color:#666;'
+        'width:130px;vertical-align:top;">'
+        f'{html.escape(label)}</td>'
+        '<td style="padding:6px 0;font-size:14px;color:#1f2933;'
+        'vertical-align:top;">'
+        f'{_mono_wrap(value_html) if mono else value_html}'
+        '</td>'
+        '</tr>'
+        for label, value_html, mono in rows
+    )
+    return _card_html(
+        title=title,
+        inner=f'<table style="width:100%;border-collapse:collapse;">{rows_html}</table>',
+    )
+
+
+def _quote_card_html(title: str, raw_text: str) -> str:
+    body = html.escape(raw_text or "(ריק)").replace("\n", "<br>")
+    return _card_html(
+        title=title,
+        inner=(
+            '<div style="background:#f8f9fb;border-right:4px solid #cfd4dc;'
+            'padding:12px 16px;font-size:14px;color:#333;line-height:1.55;'
+            'border-radius:4px;white-space:normal;word-break:break-word;">'
+            f'{body}'
+            '</div>'
+        ),
+    )
+
+
+def _list_card_html(title: str, list_items_html: str) -> str:
+    return _card_html(
+        title=title,
+        inner=(
+            '<ul style="margin:0;padding:0 18px 0 0;font-size:14px;'
+            f'color:#1f2933;line-height:1.8;">{list_items_html}</ul>'
+        ),
+    )
+
+
+def _card_html(*, title: str, inner: str) -> str:
+    return (
+        '<div style="padding:0 24px 18px 24px;">'
+        '<div style="font-size:13px;font-weight:600;color:#999;'
+        'text-transform:uppercase;letter-spacing:0.5px;'
+        f'margin-bottom:8px;">{html.escape(title)}</div>'
+        f'{inner}'
+        '</div>'
+    )
+
+
+def _cta_html(label: str, url: str, accent: str) -> str:
+    safe_url = html.escape(url, quote=True)
+    return (
+        '<div style="padding:8px 24px 24px 24px;text-align:center;">'
+        f'<a href="{safe_url}" style="display:inline-block;'
+        f'background:{accent};color:#ffffff;text-decoration:none;'
+        'padding:14px 28px;border-radius:6px;font-size:15px;font-weight:600;'
+        f'box-shadow:0 1px 2px rgba(0,0,0,0.12);">{html.escape(label)} ↗</a>'
+        '<div style="margin-top:10px;font-size:12px;color:#888;'
+        'word-break:break-all;direction:ltr;text-align:center;">'
+        f'{safe_url}'
+        '</div>'
+        '</div>'
+    )
+
+
+def _next_steps_html(steps: list[str]) -> str:
+    items = "".join(
+        f'<li style="margin-bottom:6px;">{html.escape(s)}</li>'
+        for s in steps
+    )
+    return _card_html(
+        title="מה הצעדים הבאים?",
+        inner=(
+            '<ol style="margin:0;padding:0 22px 0 0;font-size:14px;'
+            f'color:#1f2933;line-height:1.7;">{items}</ol>'
+        ),
+    )
+
+
+def _mono_wrap(value_html: str) -> str:
+    return (
+        '<code style="font-family:Consolas,Monaco,monospace;background:#f4f4f4;'
+        f'padding:2px 6px;border-radius:3px;direction:ltr;">{value_html}</code>'
+    )
+
+
+def _link_html(url: str) -> str:
+    safe_url = html.escape(url, quote=True)
+    return (
+        f'<a href="{safe_url}" style="color:#1565c0;text-decoration:none;'
+        f'word-break:break-all;direction:ltr;">{safe_url}</a>'
+    )
+
+
+# ---------------------------------------------------------------------------
+# Small string helpers
+# ---------------------------------------------------------------------------
+
+
+def _or_dash(value: str | None) -> str:
+    return value if value else "—"
+
+
+def _or_dash_html(value: str | None) -> str:
+    return html.escape(value) if value else "—"
+
+
+def _short(value: str, limit: int) -> str:
+    value = value or ""
+    return value if len(value) <= limit else value[: limit - 1].rstrip() + "…"
+
+
+def _now_str() -> str:
+    """Local Israel time, e.g. 12/05/2026 16:42 IDT (UTC fallback on Windows)."""
+    now = datetime.now(timezone.utc).astimezone(ISRAEL_TZ)
+    return now.strftime(_NOW_FMT)

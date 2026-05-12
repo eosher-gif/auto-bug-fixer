@@ -53,6 +53,7 @@ class _FakeSmtp:
         self.calls.login.append((username, password))
 
     def send_message(self, message: Any, to_addrs: list[str]) -> None:
+        text_body, html_body = _extract_alternatives(message)
         self.calls.sent.append(
             {
                 "to_addrs": list(to_addrs),
@@ -60,9 +61,26 @@ class _FakeSmtp:
                 "to_header": str(message["To"]),
                 "cc_header": str(message["Cc"]) if message.get("Cc") else None,
                 "subject": str(message["Subject"]),
-                "body": message.get_content(),
+                "body": text_body,
+                "html": html_body,
             }
         )
+
+
+def _extract_alternatives(message: Any) -> tuple[str, str]:
+    """Pull the text/plain and text/html parts out of a multipart message."""
+    text_part = ""
+    html_part = ""
+    if message.is_multipart():
+        for part in message.iter_parts():
+            ctype = part.get_content_type()
+            if ctype == "text/plain" and not text_part:
+                text_part = part.get_content()
+            elif ctype == "text/html" and not html_part:
+                html_part = part.get_content()
+    else:
+        text_part = message.get_content()
+    return text_part, html_part
 
 
 _calls = _SmtpCalls()
@@ -118,8 +136,14 @@ def test_notify_success_sends_message_with_pr_url() -> None:
     assert sent["to_addrs"] == [REPORTER]
     assert sent["from_header"] == SENDER
     assert sent["to_header"] == REPORTER
+    # PR URL + changed file appear in BOTH the plain-text and HTML alternatives.
     assert "https://example.com/pr/42" in sent["body"]
     assert "a/b.py" in sent["body"]
+    assert "https://example.com/pr/42" in sent["html"]
+    assert "a/b.py" in sent["html"]
+    # HTML must be RTL Hebrew with our brand banner text.
+    assert 'dir="rtl"' in sent["html"]
+    assert "התיקון מוכן לבדיקה" in sent["html"]
     assert _calls.starttls == 1
     assert _calls.login == [("user", "secret")]
 
@@ -133,8 +157,12 @@ def test_notify_failure_includes_error() -> None:
         )
     assert len(_calls.sent) == 1
     body = _calls.sent[0]["body"]
+    html_body = _calls.sent[0]["html"]
     assert "root cause" in body
     assert "explanation" in body
+    assert "root cause" in html_body
+    assert "explanation" in html_body
+    assert "לא הצלחנו" in html_body
     assert _calls.sent[0]["subject"].startswith("[auto-bug-fixer] Could not")
 
 
