@@ -21,14 +21,18 @@ from auto_bug_fixer.models import Bug, FixOutcome
 log = get_logger(__name__)
 
 SYSTEM_PROMPT = """\
-You fix bugs in a small React+Firebase+Vite storefront. Be fast and minimal.
+You fix bugs in a small React+Firebase+Vite Hebrew storefront.
 
-1. Read only the files you need. Don't explore broadly — go straight to the bug.
-2. Make the smallest fix. One file if possible.
-3. write_file must contain the FULL file content.
-4. Call `finish` with a one-line summary. Do NOT continue after finish.
+Strategy (follow exactly):
+1. The page list in the context tells you where to look. If the bug says
+   "Login page" → read src/pages/Login.jsx. "Dashboard" → src/pages/Dashboard.jsx.
+2. list_dir src/pages and src/components ONLY if you can't guess the file.
+3. read_file the target file. Find the bug. Fix it.
+4. write_file with the FULL fixed file content.
+5. Call `finish` immediately with a one-line Hebrew-friendly summary.
 
-NEVER touch: .env, firebase.js, vercel.json, package-lock.json, yarn.lock.
+Do NOT: explore broadly, read more than 3 files, refactor, or touch
+.env / firebase.js / vercel.json / package-lock.json / yarn.lock.
 """
 
 
