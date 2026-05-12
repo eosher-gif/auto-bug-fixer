@@ -29,6 +29,9 @@ class RegistryEntry:
     language: str | None
     test_command: str | None
     description: str | None
+    framework: str | None = None
+    forbidden_paths: tuple[str, ...] = ()
+    display_names: tuple[str, ...] = ()
 
     @property
     def coords(self) -> RepoCoordinates:
@@ -56,15 +59,26 @@ class RepoRegistry:
 
     def by_url(self, url: str) -> RegistryEntry | None:
         """Return the entry whose URL matches ``url`` (case-insensitive), or None."""
-        normalized = url.strip().lower().rstrip("/")
-        if normalized.endswith(".git"):
-            normalized = normalized[:-4]
+        normalized = _canonical_url(url)
         for entry in self.entries:
-            candidate = entry.url.strip().lower().rstrip("/")
-            if candidate.endswith(".git"):
-                candidate = candidate[:-4]
-            if candidate == normalized:
+            if _canonical_url(entry.url) == normalized:
                 return entry
+        return None
+
+    def by_display_name(self, name: str) -> RegistryEntry | None:
+        """Return the entry whose ``display_names`` contains ``name`` (loose match).
+
+        Matching is case-insensitive and whitespace-tolerant so a Firestore
+        ticket with ``project: "ארגמן"`` (with stray spaces / different
+        Unicode whitespace) still resolves to the same registry entry.
+        """
+        normalized = _canonical_display_name(name)
+        if not normalized:
+            return None
+        for entry in self.entries:
+            for candidate in entry.display_names:
+                if _canonical_display_name(candidate) == normalized:
+                    return entry
         return None
 
 
@@ -129,6 +143,9 @@ def _parse_entry(index: int, item: object, seen_urls: set[str]) -> RegistryEntry
         language=_optional_str(item.get("language")),
         test_command=_optional_str(item.get("test_command")),
         description=_optional_str(item.get("description")),
+        framework=_optional_str(item.get("framework")),
+        forbidden_paths=_string_tuple(index, "forbidden_paths", item.get("forbidden_paths")),
+        display_names=_string_tuple(index, "display_names", item.get("display_names")),
     )
 
 
@@ -139,3 +156,33 @@ def _optional_str(value: object) -> str | None:
         raise RegistryError(f"expected string, got {type(value).__name__}: {value!r}")
     text = value.strip()
     return text or None
+
+
+def _string_tuple(index: int, field: str, value: object) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, list):
+        raise RegistryError(f"repos[{index}].{field} must be a list of strings")
+    out: list[str] = []
+    for raw in value:
+        if not isinstance(raw, str):
+            raise RegistryError(
+                f"repos[{index}].{field} entries must be strings, got "
+                f"{type(raw).__name__}"
+            )
+        text = raw.strip()
+        if text:
+            out.append(text)
+    return tuple(out)
+
+
+def _canonical_url(url: str) -> str:
+    canonical = url.strip().lower().rstrip("/")
+    if canonical.endswith(".git"):
+        canonical = canonical[:-4]
+    return canonical
+
+
+def _canonical_display_name(name: str) -> str:
+    """Collapse all whitespace, lowercase — Hebrew/Latin both supported."""
+    return " ".join(name.strip().lower().split())

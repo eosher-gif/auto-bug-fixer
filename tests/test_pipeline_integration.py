@@ -23,14 +23,11 @@ def _settings(workspace: Path) -> Settings:
     return Settings(
         _env_file=None,  # type: ignore[call-arg]
         anthropic_api_key="x",
-        database_url="sqlite:///:memory:",
+        firebase_project_id="proj",
+        firebase_api_key="key",
         github_token="tkn",
-        smtp_host="smtp.example",
-        smtp_username="u",
-        smtp_password="p",
-        notify_from="[email protected]",
         workspace_dir=workspace,
-        bug_status_new="new",
+        bug_status_new="open",
         bug_status_processing="processing",
         bug_status_mr_opened="mr_opened",
         bug_status_failed="failed",
@@ -41,6 +38,8 @@ def _settings(workspace: Path) -> Settings:
 class FakeBugRepository:
     bugs: list[Bug]
     statuses: dict[str, str] = field(default_factory=dict)
+    pr_urls: dict[str, str] = field(default_factory=dict)
+    ai_notes: dict[str, str] = field(default_factory=dict)
 
     def fetch_pending(self, limit: int) -> list[Bug]:
         return self.bugs[:limit]
@@ -48,6 +47,12 @@ class FakeBugRepository:
     def mark_status(self, bug_id: str, new_status: str) -> None:
         self.statuses.setdefault(bug_id, "")
         self.statuses[bug_id] = new_status
+
+    def attach_pr_url(self, bug_id: str, pr_url: str) -> None:
+        self.pr_urls[bug_id] = pr_url
+
+    def attach_ai_notes(self, bug_id: str, notes: str) -> None:
+        self.ai_notes[bug_id] = notes
 
 
 @dataclass
@@ -159,6 +164,7 @@ def _registry_with_index(tmp_path: Path) -> tuple[RepoRegistry, IndexStore, Repo
         language="python",
         test_command="pytest",
         description=None,
+        display_names=("widgets",),
     )
     registry = RepoRegistry(entries=(entry,))
     store = IndexStore(base_dir=tmp_path / "indices")
@@ -232,11 +238,13 @@ def test_happy_path_opens_pr_and_emails(tmp_path: Path) -> None:
     assert agent.seen_indexes == [index]
 
 
-def test_no_repo_index_when_registry_missing(tmp_path: Path) -> None:
-    bug_repo = FakeBugRepository(bugs=[_bug()])
+def test_pipeline_attaches_pr_url_and_ai_notes_on_success(tmp_path: Path) -> None:
+    bug = _bug()
+    bug_repo = FakeBugRepository(bugs=[bug])
     agent = FakeAgent(
-        outcome=FixOutcome(success=True, summary="fixed", changed_files=["x.py"])
+        outcome=FixOutcome(success=True, summary="fixed it", changed_files=["x.py"])
     )
+    registry, store, _ = _registry_with_index(tmp_path)
     pipeline = _build_pipeline(
         tmp_path,
         bug_repo=bug_repo,
@@ -244,11 +252,34 @@ def test_no_repo_index_when_registry_missing(tmp_path: Path) -> None:
         git=FakeGit(),
         github=FakeGitHub(),
         email=FakeEmail(),
-        registry=None,
-        index_store=None,
+        registry=registry,
+        index_store=store,
     )
     pipeline.run_once()
-    assert agent.seen_indexes == [None]
+    assert bug.id in bug_repo.pr_urls
+    assert bug_repo.pr_urls[bug.id].endswith("/pull/100")
+    assert bug_repo.ai_notes[bug.id] == "fixed it"
+
+
+def test_pipeline_attaches_ai_notes_on_failure(tmp_path: Path) -> None:
+    bug = _bug()
+    bug_repo = FakeBugRepository(bugs=[bug])
+    agent = FakeAgent(
+        outcome=FixOutcome(success=False, summary="claude said no", error="syntax")
+    )
+    registry, store, _ = _registry_with_index(tmp_path)
+    pipeline = _build_pipeline(
+        tmp_path,
+        bug_repo=bug_repo,
+        agent=agent,
+        git=FakeGit(),
+        github=FakeGitHub(),
+        email=FakeEmail(),
+        registry=registry,
+        index_store=store,
+    )
+    pipeline.run_once()
+    assert bug_repo.ai_notes[bug.id] == "syntax"
 
 
 def test_failure_outcome_marks_failed_and_emails(tmp_path: Path) -> None:

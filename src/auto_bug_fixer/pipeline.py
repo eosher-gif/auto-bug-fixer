@@ -7,7 +7,8 @@ from pathlib import Path
 
 from auto_bug_fixer.claude_agent.agent import ClaudeAgentError, ClaudeBugFixerAgent
 from auto_bug_fixer.config import Settings
-from auto_bug_fixer.db.repository import BugRepository
+from auto_bug_fixer.db.firestore_repository import FirestoreBugRepository
+from auto_bug_fixer.db.project_resolver import ProjectResolver
 from auto_bug_fixer.git_ops.github_api import GitHubAPIError, GitHubClient
 from auto_bug_fixer.git_ops.repo import GitClient, GitOperationError, parse_github_url
 from auto_bug_fixer.indexer.index_store import IndexStore
@@ -28,7 +29,7 @@ class BugFixPipeline:
         self,
         settings: Settings,
         *,
-        bug_repository: BugRepository | None = None,
+        bug_repository: FirestoreBugRepository | None = None,
         agent: ClaudeBugFixerAgent | None = None,
         git: GitClient | None = None,
         github: GitHubClient | None = None,
@@ -36,9 +37,24 @@ class BugFixPipeline:
         registry: RepoRegistry | None = None,
         index_store: IndexStore | None = None,
     ) -> None:
-        """Construct collaborators from settings, with overrides for tests."""
+        """Construct collaborators from settings, with overrides for tests.
+
+        ``registry`` is required when ``bug_repository`` is not supplied —
+        the Firestore repository needs a project resolver, which is built
+        from the registry.
+        """
         self._settings = settings
-        self._repo = bug_repository or BugRepository(settings)
+        if bug_repository is not None:
+            self._repo = bug_repository
+        else:
+            if registry is None:
+                raise ValueError(
+                    "registry is required to construct the default "
+                    "FirestoreBugRepository"
+                )
+            self._repo = FirestoreBugRepository(
+                settings, ProjectResolver(registry)
+            )
         self._agent = agent or ClaudeBugFixerAgent(settings)
         self._git = git or GitClient(
             committer_name=settings.git_committer_name,
@@ -130,6 +146,8 @@ class BugFixPipeline:
         pr: PullRequest,
     ) -> None:
         self._repo.mark_status(bug.id, self._settings.bug_status_mr_opened)
+        self._safe_attach(self._repo.attach_pr_url, bug.id, pr.url)
+        self._safe_attach(self._repo.attach_ai_notes, bug.id, outcome.summary)
         try:
             self._email.notify_success(bug, outcome, pr)
         except EmailDeliveryError as exc:
@@ -143,10 +161,20 @@ class BugFixPipeline:
             summary=outcome.summary,
         )
         self._repo.mark_status(bug.id, self._settings.bug_status_failed)
+        notes = (outcome.error or outcome.summary or "no notes").strip()
+        self._safe_attach(self._repo.attach_ai_notes, bug.id, notes)
         try:
             self._email.notify_failure(bug, outcome)
         except EmailDeliveryError as exc:
             log.error("email_failed", bug_id=bug.id, error=str(exc))
+
+    @staticmethod
+    def _safe_attach(fn, bug_id: str, value: str) -> None:
+        """Best-effort write of an auxiliary field; never blocks the pipeline."""
+        try:
+            fn(bug_id, value)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("ticket_attach_failed", bug_id=bug_id, error=str(exc))
 
     def _lookup_index(self, repo_url: str):
         if self._registry is None or self._index_store is None:

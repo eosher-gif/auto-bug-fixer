@@ -79,7 +79,8 @@ def _settings(notify_cc: str = "", email_enabled: bool = True) -> Settings:
     return Settings(
         _env_file=None,  # type: ignore[call-arg]
         anthropic_api_key="x",
-        database_url="sqlite:///:memory:",
+        firebase_project_id="proj",
+        firebase_api_key="key",
         github_token="x",
         email_enabled=email_enabled,
         smtp_host="smtp.example",
@@ -207,7 +208,8 @@ def test_settings_accept_blank_smtp_when_email_disabled() -> None:
     s = Settings(
         _env_file=None,  # type: ignore[call-arg]
         anthropic_api_key="x",
-        database_url="sqlite:///:memory:",
+        firebase_project_id="proj",
+        firebase_api_key="key",
         github_token="x",
         email_enabled=False,
     )

@@ -6,7 +6,13 @@ from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class Bug:
-    """A bug record loaded from the customer database."""
+    """A bug record loaded from the customer database.
+
+    `repo_url` and `base_branch` are derived in the repository layer from a
+    project-name field on the source ticket (e.g. Firestore "project") via a
+    project resolver, so the rest of the pipeline does not need to know
+    where the ticket came from.
+    """
 
     id: str
     title: str
@@ -14,6 +20,10 @@ class Bug:
     repo_url: str
     base_branch: str
     reporter_email: str | None
+    ticket_type: str = "bug"
+    customer_name: str | None = None
+    project_name: str | None = None
+    image_urls: tuple[str, ...] = ()
 
 
 @dataclass

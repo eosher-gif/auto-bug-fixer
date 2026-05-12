@@ -1,29 +1,38 @@
 name: bug-fixer
 
-# Production runtime: every 15 minutes the workflow polls the bug DB,
-# processes up to MAX_BUGS_PER_RUN bugs, opens PRs on the target repos,
-# and exits. It is the GitHub-Actions equivalent of `python -m auto_bug_fixer daemon`.
+# Production runtime: every 15 minutes the workflow polls the Firestore
+# tickets collection, processes up to MAX_BUGS_PER_RUN bugs, opens PRs on
+# the target repos, and exits. It is the GitHub-Actions equivalent of
+# `python -m auto_bug_fixer daemon`.
 #
 # REQUIRED REPOSITORY SECRETS (Settings -> Secrets and variables -> Actions):
-#   ANTHROPIC_API_KEY  - Anthropic API key (Claude)
-#   BUG_DB_URL         - SQLAlchemy URL of the bug database
-#   GH_TOKEN           - PAT with Contents+PullRequests write on target repos
-#   SMTP_HOST          - (only if EMAIL_ENABLED variable = "true")
-#   SMTP_USERNAME      - (only if EMAIL_ENABLED variable = "true")
-#   SMTP_PASSWORD      - (only if EMAIL_ENABLED variable = "true")
+#   ANTHROPIC_API_KEY    - Anthropic API key (Claude)
+#   FIREBASE_API_KEY     - Web API key of the Firebase project that holds the
+#                          tickets collection (e.g. service-tickets-cb56a)
+#   TALYA_TOKEN          - Talya's fine-grained PAT with Contents+PullRequests
+#                          write on every target repo listed in repos.yaml
+#   SMTP_HOST            - (only if EMAIL_ENABLED variable = "true")
+#   SMTP_USERNAME        - (only if EMAIL_ENABLED variable = "true")
+#   SMTP_PASSWORD        - (only if EMAIL_ENABLED variable = "true")
+#
+# REQUIRED REPOSITORY VARIABLES (Settings -> Variables):
+#   FIREBASE_PROJECT_ID  - e.g. service-tickets-cb56a
+#
+# OPTIONAL REPOSITORY VARIABLES:
+#   ANTHROPIC_MODEL, FIRESTORE_COLLECTION, FIRESTORE_TYPE_FILTER,
+#   BUG_STATUS_NEW, BUG_STATUS_PROCESSING, BUG_STATUS_MR_OPENED,
+#   BUG_STATUS_FAILED, MAX_BUGS_PER_RUN, EMAIL_ENABLED,
+#   GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL, NOTIFY_FROM, NOTIFY_CC
 #
 # Missing secrets evaluate to "" in GitHub Actions and Settings will reject
 # them at startup, so the workflow fails fast rather than silently.
 #
 # Free-tier budget (private repo): 2000 min/month.
-# At */15 polling and ~30s idle ticks, the baseline cost is ~720 min/month,
-# leaving ~1280 min/month for actual bug-fix work (≈250 fixes).
-# Make this repo PUBLIC for unlimited Actions minutes.
+# Public repos get unlimited Actions minutes.
 
 on:
-  # Cron is intentionally DISABLED until the Firestore migration is finished
-  # and BUG_DB_URL secret is configured. Re-enable by uncommenting the
-  # 'schedule' block below.
+  # Cron is intentionally DISABLED until FIREBASE_PROJECT_ID + FIREBASE_API_KEY
+  # are configured. Re-enable by uncommenting the 'schedule' block below.
   #
   # schedule:
   #   - cron: "*/15 * * * *"
@@ -67,23 +76,19 @@ jobs:
           # Anthropic
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
-          # Bug DB
-          DATABASE_URL: ${{ secrets.BUG_DB_URL }}
-          BUG_TABLE_NAME: ${{ vars.BUG_TABLE_NAME }}
-          BUG_ID_COLUMN: ${{ vars.BUG_ID_COLUMN }}
-          BUG_TITLE_COLUMN: ${{ vars.BUG_TITLE_COLUMN }}
-          BUG_DESCRIPTION_COLUMN: ${{ vars.BUG_DESCRIPTION_COLUMN }}
-          BUG_STATUS_COLUMN: ${{ vars.BUG_STATUS_COLUMN }}
-          BUG_REPO_URL_COLUMN: ${{ vars.BUG_REPO_URL_COLUMN }}
-          BUG_REPO_BRANCH_COLUMN: ${{ vars.BUG_REPO_BRANCH_COLUMN }}
-          BUG_REPORTER_EMAIL_COLUMN: ${{ vars.BUG_REPORTER_EMAIL_COLUMN }}
+          # Firestore (bug source) — REST + API key (no service-account key
+          # because Talya's GCP project blocks key creation by org policy).
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIRESTORE_COLLECTION: ${{ vars.FIRESTORE_COLLECTION }}
+          FIRESTORE_TYPE_FILTER: ${{ vars.FIRESTORE_TYPE_FILTER }}
           BUG_STATUS_NEW: ${{ vars.BUG_STATUS_NEW }}
           BUG_STATUS_PROCESSING: ${{ vars.BUG_STATUS_PROCESSING }}
           BUG_STATUS_MR_OPENED: ${{ vars.BUG_STATUS_MR_OPENED }}
           BUG_STATUS_FAILED: ${{ vars.BUG_STATUS_FAILED }}
           MAX_BUGS_PER_RUN: ${{ inputs.max_bugs || vars.MAX_BUGS_PER_RUN }}
-          # GitHub (PR creation on TARGET repos)
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # GitHub (PR creation on TARGET repos) — Talya's PAT
+          GITHUB_TOKEN: ${{ secrets.TALYA_TOKEN }}
           GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
           GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
           # Email is disabled by default. Flip EMAIL_ENABLED variable to "true"

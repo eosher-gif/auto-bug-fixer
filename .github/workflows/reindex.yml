@@ -5,9 +5,11 @@ name: reindex
 # bug-fixer workflow then reads those committed indexes on every run.
 #
 # REQUIRED REPOSITORY SECRETS (same set as bug-fixer.yml):
-#   ANTHROPIC_API_KEY  - required by Settings, not actually used here
-#   BUG_DB_URL         - required by Settings, not actually used here
-#   GH_TOKEN           - PAT used to clone target repos in repos.yaml
+#   ANTHROPIC_API_KEY    - required by Settings, not actually used here
+#   FIREBASE_API_KEY     - required by Settings, not actually used here
+#   TALYA_TOKEN          - Talya's PAT, used to clone target repos in repos.yaml
+# REQUIRED REPOSITORY VARIABLES:
+#   FIREBASE_PROJECT_ID  - required by Settings, not actually used here
 
 on:
   schedule:
@@ -60,7 +62,8 @@ jobs:
           # Required by Settings (not actually used in index-once mode).
           # Email defaults to disabled so SMTP_* secrets are optional.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL: ${{ secrets.BUG_DB_URL }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
           REPOS_FILE: ${{ github.workspace }}/repos.yaml
           INDEX_DIR: ${{ github.workspace }}/indexes

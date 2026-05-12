@@ -17,12 +17,9 @@ def _settings() -> Settings:
     return Settings(
         _env_file=None,  # type: ignore[call-arg]
         anthropic_api_key="x",
-        database_url="sqlite:///:memory:",
+        firebase_project_id="proj",
+        firebase_api_key="key",
         github_token="x",
-        smtp_host="h",
-        smtp_username="u",
-        smtp_password="p",
-        notify_from="bot" + "@" + "host",
         claude_max_tool_iterations=4,
     )
 

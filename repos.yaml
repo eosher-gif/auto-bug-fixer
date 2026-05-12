@@ -1,0 +1,71 @@
+# Live registry of repositories the bug-fixer is responsible for.
+# This file IS read by the bug-fixer workflow on every run. Edit with care.
+#
+# `display_names` is the bridge between free-text Hebrew project names that
+# customers write into Firestore tickets (the value comes from the URL
+# query parameter on Talya's ticket form) and the actual GitHub repository
+# the fix should go into. Matching is case-insensitive and whitespace-
+# tolerant; the resolver does NOT do fuzzy matching, so list every exact
+# variation that appears in real tickets.
+#
+# `forbidden_paths` lists files Claude is NEVER allowed to touch.
+
+# IMPORTANT: there is also an OLD `talya-debug/Argaman` repository — it is
+# inactive and must NOT be touched. All Argaman tickets go to argaman-new.
+
+# Talya's safety policy — these files are never modified by the bot:
+#   .env, .env.local, firebase.js, lib/firebase.js, vercel.json,
+#   package-lock.json, yarn.lock
+
+_anchors:
+  forbidden_paths_default: &forbidden
+    - .env
+    - .env.local
+    - firebase.js
+    - lib/firebase.js
+    - vercel.json
+    - package-lock.json
+    - yarn.lock
+
+repos:
+  - url: https://github.com/talya-debug/argaman-new
+    default_branch: master
+    language: javascript
+    framework: react
+    test_command: npm test --silent
+    description: |
+      Argaman storefront. React + Firebase. Hebrew RTL UI throughout.
+      Deployed on Vercel — every PR gets an automatic preview URL.
+    display_names:
+      - "ארגמן"
+    forbidden_paths: *forbidden
+
+  - url: https://github.com/talya-debug/yishai-yosef
+    default_branch: main
+    language: javascript
+    framework: react
+    test_command: npm test --silent
+    description: |
+      Yishai-Yosef storefront. Same stack as Argaman.
+    display_names:
+      - "ישי יוסף"
+    forbidden_paths: *forbidden
+
+  - url: https://github.com/talya-debug/yael_siso
+    default_branch: master
+    language: javascript
+    framework: react
+    test_command: npm test --silent
+    display_names:
+      - "יעל סיסו"
+    forbidden_paths: *forbidden
+
+  - url: https://github.com/talya-debug/lia-fine-jewelry
+    default_branch: master
+    language: javascript
+    framework: react
+    test_command: npm test --silent
+    display_names:
+      - "ליה"
+      - "LIA"
+    forbidden_paths: *forbidden

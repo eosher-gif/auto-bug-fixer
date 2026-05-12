@@ -63,6 +63,21 @@ def _load_registry_or_none(settings: Settings) -> RepoRegistry | None:
         return None
 
 
+def _load_registry_or_die(settings: Settings) -> RepoRegistry:
+    """Load the registry; exit the process with a clear error if it is missing.
+
+    Pipeline mode (daemon / run-once) cannot operate without a registry —
+    every Firestore ticket is mapped to a repo via the project resolver,
+    which itself reads from the registry.
+    """
+    log = get_logger(__name__)
+    try:
+        return load_registry(settings.repos_file)
+    except RegistryError as exc:
+        log.error("registry_required", error=str(exc), path=str(settings.repos_file))
+        raise SystemExit(1) from exc
+
+
 def _build_index_runner(
     settings: Settings,
     registry: RepoRegistry | None,
@@ -83,8 +98,8 @@ def _build_index_runner(
 
 
 def _run_daemon(settings: Settings) -> int:
-    registry = _load_registry_or_none(settings)
-    index_store = IndexStore(settings.index_dir) if registry is not None else None
+    registry = _load_registry_or_die(settings)
+    index_store = IndexStore(settings.index_dir)
 
     pipeline = BugFixPipeline(
         settings,
@@ -132,12 +147,11 @@ def _run_index_once(settings: Settings) -> int:
 
 
 def _run_pipeline_once(settings: Settings) -> int:
-    registry = _load_registry_or_none(settings)
-    index_store = IndexStore(settings.index_dir) if registry is not None else None
+    registry = _load_registry_or_die(settings)
     pipeline = BugFixPipeline(
         settings,
         registry=registry,
-        index_store=index_store,
+        index_store=IndexStore(settings.index_dir),
     )
     pipeline.run_once()
     return 0

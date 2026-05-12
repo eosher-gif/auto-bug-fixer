@@ -61,7 +61,8 @@ In your new repo: **Settings → Secrets and variables → Actions**
 | Name | Value |
 |---|---|
 | `ANTHROPIC_API_KEY` | Your Claude API key (`sk-ant-…`) |
-| `DATABASE_URL` | Full SQLAlchemy URL of your bug DB |
+| `FIREBASE_PROJECT_ID` | The GCP/Firebase project id holding the tickets collection (e.g. `service-tickets-cb56a`). |
+| `FIREBASE_API_KEY` | Web API key of that Firebase project. Authorization is enforced by Firestore Security Rules — the API key alone gives no permission. |
 | `BUG_FIXER_GITHUB_TOKEN` | Fine-grained PAT with `Contents: write` + `Pull requests: write` on every target repo |
 | `SMTP_HOST` | e.g. `smtp.gmail.com` |
 | `SMTP_USERNAME` | e.g. your sender address |

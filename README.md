@@ -95,7 +95,8 @@ src/auto_bug_fixer/
   pipeline.py               # one-tick orchestration
   health.py                 # /health + /ready HTTP server (stdlib only)
   registry.py               # repos.yaml loader/validator
-  db/repository.py          # schema-agnostic SQLAlchemy reads + status updates
+  db/firestore_repository.py # Firestore reads + status/metadata writes
+  db/project_resolver.py    # Hebrew "project" name -> registry entry
   claude_agent/
     tools.py                # sandboxed list_dir/read_file/write_file/run_cmd
     agent.py                # Anthropic tool-use loop, finishes when Claude calls `finish`

@@ -148,3 +148,59 @@ repos:
     registry = load_registry(path)
     urls = [e.url for e in registry]
     assert urls == ["https://github.com/a/b", "https://github.com/c/d"]
+
+
+def test_loads_display_names_and_forbidden_paths(tmp_path: Path) -> None:
+    path = _write(
+        tmp_path / "repos.yaml",
+        """
+repos:
+  - url: https://github.com/talya-debug/argaman-new
+    default_branch: master
+    framework: react
+    display_names:
+      - "ארגמן"
+      - "Argaman"
+    forbidden_paths:
+      - .env
+      - firebase.js
+""",
+    )
+    entry = load_registry(path).entries[0]
+    assert entry.framework == "react"
+    assert entry.display_names == ("ארגמן", "Argaman")
+    assert entry.forbidden_paths == (".env", "firebase.js")
+
+
+def test_lookup_by_display_name_is_case_and_whitespace_insensitive(
+    tmp_path: Path,
+) -> None:
+    path = _write(
+        tmp_path / "repos.yaml",
+        """
+repos:
+  - url: https://github.com/talya-debug/argaman-new
+    default_branch: master
+    display_names: ["Argaman", "ארגמן"]
+""",
+    )
+    registry = load_registry(path)
+    assert registry.by_display_name("argaman") is not None
+    assert registry.by_display_name("  ARGAMAN  ") is not None
+    assert registry.by_display_name("ארגמן") is not None
+    assert registry.by_display_name("nope") is None
+    assert registry.by_display_name("") is None
+
+
+def test_display_names_must_be_list_of_strings(tmp_path: Path) -> None:
+    path = _write(
+        tmp_path / "repos.yaml",
+        """
+repos:
+  - url: https://github.com/a/b
+    default_branch: main
+    display_names: "not-a-list"
+""",
+    )
+    with pytest.raises(RegistryError, match="display_names must be a list"):
+        load_registry(path)

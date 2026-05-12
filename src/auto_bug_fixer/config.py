@@ -24,22 +24,48 @@ class Settings(BaseSettings):
     claude_max_tool_iterations: int = Field(default=25, ge=1, le=200)
     claude_max_output_tokens: int = Field(default=8192, ge=512, le=64000)
 
-    # Database
-    database_url: str
-    bug_table_name: str = "customer_bugs"
-    bug_id_column: str = "id"
-    bug_title_column: str = "title"
-    bug_description_column: str = "description"
-    bug_status_column: str = "status"
-    bug_repo_url_column: str = "repo_url"
-    bug_repo_branch_column: str = "base_branch"
-    bug_reporter_email_column: str = "reporter_email"
+    # ---------- Firestore (bug source) ----------
+    # We talk to Firestore via the public REST API + the project's web API
+    # key. Service-account keys are blocked by org policy on Talya's GCP
+    # project, so the Admin SDK is unusable. Firestore Security Rules on
+    # this project allow read/write/update with just the API key.
+    #
+    # Both fields are required.
+    firebase_project_id: str = ""
+    firebase_api_key: SecretStr = SecretStr("")
 
-    bug_status_new: str = "new"
+    # Override only for testing against the Firestore emulator.
+    firestore_base_url: str = "https://firestore.googleapis.com/v1"
+
+    # HTTP timeouts for every Firestore call.
+    firestore_request_timeout_seconds: float = Field(default=15.0, ge=1.0, le=120.0)
+
+    # Firestore collection containing tickets / bugs.
+    firestore_collection: str = "tickets"
+
+    # Field names inside each Firestore document.
+    firestore_status_field: str = "status"
+    firestore_type_field: str = "type"
+    firestore_description_field: str = "description"
+    firestore_email_field: str = "email"
+    firestore_project_field: str = "project"
+    firestore_customer_name_field: str = "name"
+    firestore_images_field: str = "images"
+    firestore_pr_url_field: str = "pr_url"
+    firestore_ai_notes_field: str = "ai_notes"
+
+    # Status state machine (values written back into the status field).
+    bug_status_new: str = "open"
     bug_status_processing: str = "processing"
     bug_status_mr_opened: str = "mr_opened"
     bug_status_failed: str = "failed"
 
+    # Only tickets whose `type` field matches this are picked up. Set to
+    # empty string to disable the filter and process every ticket.
+    firestore_type_filter: str = "bug"
+
+    # Cap a single tick to this many tickets so a flood does not exhaust
+    # the Anthropic budget in one go.
     max_bugs_per_run: int = Field(default=3, ge=1, le=50)
 
     # Daemon loop
@@ -87,6 +113,20 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
+
+    @model_validator(mode="after")
+    def _require_firebase_credentials(self) -> "Settings":
+        """Require both FIREBASE_PROJECT_ID and FIREBASE_API_KEY."""
+        missing: list[str] = []
+        if not self.firebase_project_id.strip():
+            missing.append("FIREBASE_PROJECT_ID")
+        if not self.firebase_api_key.get_secret_value().strip():
+            missing.append("FIREBASE_API_KEY")
+        if missing:
+            raise ValueError(
+                "Missing required Firebase config: " + ", ".join(missing)
+            )
+        return self
 
     @model_validator(mode="after")
     def _require_smtp_when_email_enabled(self) -> "Settings":

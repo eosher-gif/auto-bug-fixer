@@ -10,12 +10,9 @@ from auto_bug_fixer import cli
 
 REQUIRED_ENV = {
     "ANTHROPIC_API_KEY": "x",
-    "DATABASE_URL": "sqlite:///:memory:",
+    "FIREBASE_PROJECT_ID": "p",
+    "FIREBASE_API_KEY": "k",
     "GITHUB_TOKEN": "x",
-    "SMTP_HOST": "h",
-    "SMTP_USERNAME": "u",
-    "SMTP_PASSWORD": "p",
-    "NOTIFY_FROM": "bot" + "@" + "host",
 }
 
 
@@ -34,7 +31,33 @@ def test_unknown_command_prints_help_and_returns_2(
     assert exc.value.code == 2
 
 
+def _write_minimal_registry(tmp_path) -> str:
+    """Pipeline mode requires a non-empty repos.yaml."""
+    repos = tmp_path / "repos.yaml"
+    repos.write_text(
+        "repos:\n"
+        "  - url: https://github.com/a/b\n"
+        "    default_branch: main\n",
+        encoding="utf-8",
+    )
+    return str(repos)
+
+
 def test_run_once_invokes_pipeline(
+    env_isolation, monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    _set_env(
+        monkeypatch,
+        REPOS_FILE=_write_minimal_registry(tmp_path),
+        INDEX_DIR=str(tmp_path / "idx"),
+    )
+    monkeypatch.setattr(cli, "BugFixPipeline", _StubPipeline)
+    rc = cli.main(["run-once"])
+    assert rc == 0
+    assert _StubPipeline.calls == 1
+
+
+def test_run_once_exits_when_registry_missing(
     env_isolation, monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
     _set_env(
@@ -42,10 +65,9 @@ def test_run_once_invokes_pipeline(
         REPOS_FILE=str(tmp_path / "no.yaml"),
         INDEX_DIR=str(tmp_path / "idx"),
     )
-    monkeypatch.setattr(cli, "BugFixPipeline", _StubPipeline)
-    rc = cli.main(["run-once"])
-    assert rc == 0
-    assert _StubPipeline.calls == 1
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["run-once"])
+    assert exc.value.code == 1
 
 
 def test_index_once_returns_1_when_registry_missing(
@@ -92,7 +114,7 @@ def test_daemon_starts_and_stops(
 ) -> None:
     _set_env(
         monkeypatch,
-        REPOS_FILE=str(tmp_path / "no.yaml"),
+        REPOS_FILE=_write_minimal_registry(tmp_path),
         INDEX_DIR=str(tmp_path / "idx"),
         HEALTH_ENABLED="false",
     )
