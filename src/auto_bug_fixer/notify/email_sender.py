@@ -529,27 +529,12 @@ def _cta_html(label: str, url: str, accent: str) -> str:
 
 
 def _build_vercel_preview_url(bug: Bug, pr: PullRequest) -> str | None:
-    """Build a Vercel preview URL from the PR branch name.
+    """Return None — Vercel preview URLs use unpredictable hashes.
 
-    Vercel generates preview URLs in the format:
-    {project}-git-{branch-slug}-{team}.vercel.app
+    The Vercel bot posts the real preview URL as a PR comment, so we
+    direct users to the PR instead of guessing a broken URL.
     """
-    if not bug.repo_url:
-        return None
-    # Extract repo name from URL
-    parts = bug.repo_url.rstrip("/").split("/")
-    if len(parts) < 2:
-        return None
-    repo_name = parts[-1].replace(".git", "")
-    owner = parts[-2]
-    # Vercel branch slug: lowercase, replace non-alnum with hyphen
-    branch_slug = pr.branch.lower()
-    branch_slug = re.sub(r"[^a-z0-9]+", "-", branch_slug).strip("-")
-    # Typical Vercel format for org projects
-    return (
-        f"https://{repo_name}-git-{branch_slug}-"
-        f"{owner}s-projects.vercel.app"
-    )
+    return None
 
 
 def _ai_summary_card_html(summary: str) -> str:
