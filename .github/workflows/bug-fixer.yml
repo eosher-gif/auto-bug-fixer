@@ -35,13 +35,8 @@ name: bug-fixer
 # Public repos get unlimited Actions minutes.
 
 on:
-  # Cron is intentionally DISABLED until we are confident the pipeline
-  # is stable end-to-end. Re-enable by uncommenting the 'schedule' block
-  # below (suggest "*/15 * * * *" so we poll Firestore every 15 minutes).
-  #
-  # schedule:
-  #   - cron: "*/15 * * * *"
-  #
+  schedule:
+    - cron: "*/15 * * * *"
   # Push trigger fires on changes to the workflow file itself, the repo
   # registry, requirements, or source. This lets us validate the
   # pipeline end-to-end after a deploy without needing actions:write on
