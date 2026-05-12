@@ -22,8 +22,8 @@ log = get_logger(__name__)
 MAX_TREE_ENTRIES = 400
 MAX_TREE_DEPTH = 4
 MAX_README_BYTES = 6_000
-MAX_SNIPPET_BYTES = 4_000
-MAX_SNIPPETS = 12
+MAX_SNIPPET_BYTES = 2_000
+MAX_SNIPPETS = 5
 KEY_FILES = (
     "README.md",
     "README.rst",
@@ -318,7 +318,7 @@ def _extract_dependencies(repo_root: Path, language: str | None) -> dict[str, st
     if pkg_json.is_file():
         try:
             raw = json.loads(pkg_json.read_text(encoding="utf-8"))
-            for key in ("dependencies", "devDependencies"):
+            for key in ("dependencies",):  # skip devDependencies to save tokens
                 section = raw.get(key, {})
                 if isinstance(section, dict):
                     for name, ver in section.items():
@@ -409,12 +409,11 @@ def _extract_component_map(
                     imports.append(imp)
             if imports:
                 cmap[rel] = imports[:15]  # cap per file
-    # Limit total entries to avoid bloat
-    if len(cmap) > 30:
-        # Keep pages + first 20 components
+    # Limit total entries to save tokens — pages are most important
+    if len(cmap) > 15:
         pages = {k: v for k, v in cmap.items() if "pages/" in k}
         comps = {k: v for k, v in cmap.items() if "pages/" not in k}
-        cmap = {**pages, **dict(list(comps.items())[:20])}
+        cmap = {**pages, **dict(list(comps.items())[:max(0, 15 - len(pages))])}
     return cmap
 
 

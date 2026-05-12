@@ -4,7 +4,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from anthropic import Anthropic, APIError
+import time
+
+from anthropic import Anthropic, APIError, RateLimitError
 
 from auto_bug_fixer.claude_agent.tools import (
     TOOL_SCHEMAS,
@@ -45,10 +47,37 @@ class ClaudeAgentError(RuntimeError):
 class ClaudeBugFixerAgent:
     """Drives Claude with sandboxed tools until it calls ``finish``."""
 
+    MAX_RATE_LIMIT_RETRIES = 5
+    RATE_LIMIT_BASE_WAIT = 30  # seconds
+
     def __init__(self, settings: Settings) -> None:
         """Create an agent bound to a configured Anthropic client."""
         self._settings = settings
         self._client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value())
+
+    def _call_with_retry(self, messages: list[dict[str, Any]]):
+        """Call the API with automatic retry on rate limits."""
+        for attempt in range(self.MAX_RATE_LIMIT_RETRIES):
+            try:
+                return self._client.messages.create(
+                    model=self._settings.anthropic_model,
+                    max_tokens=self._settings.claude_max_output_tokens,
+                    system=SYSTEM_PROMPT,
+                    tools=TOOL_SCHEMAS,
+                    messages=messages,
+                )
+            except RateLimitError as exc:
+                wait = self.RATE_LIMIT_BASE_WAIT * (attempt + 1)
+                log.warning(
+                    "rate_limited",
+                    attempt=attempt + 1,
+                    wait_seconds=wait,
+                    error=str(exc),
+                )
+                time.sleep(wait)
+            except APIError as exc:
+                raise ClaudeAgentError(f"Anthropic API error: {exc}") from exc
+        return None
 
     def fix_bug(
         self,
@@ -83,16 +112,10 @@ class ClaudeBugFixerAgent:
 
         for iteration in range(1, self._settings.claude_max_tool_iterations + 1):
             log.info("agent_iteration", bug_id=bug.id, iteration=iteration)
-            try:
-                response = self._client.messages.create(
-                    model=self._settings.anthropic_model,
-                    max_tokens=self._settings.claude_max_output_tokens,
-                    system=SYSTEM_PROMPT,
-                    tools=TOOL_SCHEMAS,
-                    messages=messages,
-                )
-            except APIError as exc:
-                raise ClaudeAgentError(f"Anthropic API error: {exc}") from exc
+            response = self._call_with_retry(messages)
+
+            if response is None:
+                raise ClaudeAgentError("Anthropic API: exhausted retries on rate limit")
 
             messages.append({"role": "assistant", "content": response.content})
 
