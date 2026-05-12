@@ -88,7 +88,7 @@ jobs:
       - name: Commit refreshed indexes (if changed)
         run: |
           if [[ -n "$(git status --porcelain indexes/)" ]]; then
-            git add indexes/
+            git add indexes/*.json indexes/*.history.jsonl 2>/dev/null || true
             git commit -m "chore(indexes): daily refresh [skip ci]"
             git push
           else

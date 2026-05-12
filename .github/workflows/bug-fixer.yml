@@ -65,7 +65,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   process-bugs:
@@ -126,3 +126,15 @@ jobs:
           LOG_LEVEL: INFO
           LOG_FORMAT: json
         run: python -m auto_bug_fixer run-once
+
+      - name: Commit history ledger (if changed)
+        run: |
+          git config user.name  "auto-bug-fixer[bot]"
+          git config user.email "auto-bug-fixer[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain indexes/*.history.jsonl 2>/dev/null)" ]]; then
+            git add indexes/*.history.jsonl
+            git commit -m "chore(history): record fix outcomes [skip ci]"
+            git push
+          else
+            echo "No history changes."
+          fi
