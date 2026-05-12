@@ -186,6 +186,14 @@ class BugFixPipeline:
         index = self._index_store.load(entry)
         if index is None:
             log.warning("no_index_available", repo_url=repo_url)
+            return None
+        log.info(
+            "index_loaded",
+            repo_url=repo_url,
+            indexed_at=index.indexed_at,
+            tree_entries=len(index.tree),
+            language=index.detected_language,
+        )
         return index
 
     @staticmethod
