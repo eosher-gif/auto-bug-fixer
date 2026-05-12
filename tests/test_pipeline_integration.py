@@ -66,6 +66,8 @@ class FakeAgent:
         bug: Bug,
         repo_root: Path,
         repo_index: RepoIndex | None = None,
+        forbidden_paths: tuple[str, ...] = (),
+        history_block: str = "",
     ) -> FixOutcome:
         self.seen_bugs.append(bug)
         self.seen_indexes.append(repo_index)

@@ -11,7 +11,9 @@ from auto_bug_fixer.db.firestore_repository import FirestoreBugRepository
 from auto_bug_fixer.db.project_resolver import ProjectResolver
 from auto_bug_fixer.git_ops.github_api import GitHubAPIError, GitHubClient
 from auto_bug_fixer.git_ops.repo import GitClient, GitOperationError, parse_github_url
+from auto_bug_fixer.indexer.history_store import HistoryEntry, HistoryStore
 from auto_bug_fixer.indexer.index_store import IndexStore
+from auto_bug_fixer.indexer.repo_index import RepoIndex
 from auto_bug_fixer.logging_setup import get_logger
 from auto_bug_fixer.models import Bug, FixOutcome, PullRequest
 from auto_bug_fixer.notify.email_sender import EmailDeliveryError, EmailNotifier
@@ -69,6 +71,7 @@ class BugFixPipeline:
         self._email = email or EmailNotifier(settings)
         self._registry = registry
         self._index_store = index_store
+        self._history = HistoryStore(settings.index_dir) if index_store else None
 
     def run_once(self) -> int:
         """Process up to ``MAX_BUGS_PER_RUN`` pending bugs. Returns count handled."""
@@ -89,8 +92,15 @@ class BugFixPipeline:
         sandbox = self._settings.workspace_dir / f"bug-{bug.id}-{int(time.time())}"
         try:
             self._git.clone(bug.repo_url, bug.base_branch, sandbox)
-            repo_index = self._lookup_index(bug.repo_url)
-            outcome = self._agent.fix_bug(bug, sandbox, repo_index=repo_index)
+            repo_index, forbidden_paths, history_block = self._lookup_context(
+                bug.repo_url
+            )
+            outcome = self._agent.fix_bug(
+                bug, sandbox,
+                repo_index=repo_index,
+                forbidden_paths=forbidden_paths,
+                history_block=history_block,
+            )
             if not outcome.success:
                 self._handle_failure(bug, outcome)
                 return
@@ -148,6 +158,7 @@ class BugFixPipeline:
         self._repo.mark_status(bug.id, self._settings.bug_status_mr_opened)
         self._safe_attach(self._repo.attach_pr_url, bug.id, pr.url)
         self._safe_attach(self._repo.attach_ai_notes, bug.id, outcome.summary)
+        self._record_history(bug, outcome, pr)
         try:
             self._email.notify_success(bug, outcome, pr)
         except EmailDeliveryError as exc:
@@ -176,25 +187,69 @@ class BugFixPipeline:
         except Exception as exc:  # noqa: BLE001
             log.warning("ticket_attach_failed", bug_id=bug_id, error=str(exc))
 
-    def _lookup_index(self, repo_url: str):
-        if self._registry is None or self._index_store is None:
-            return None
+    def _record_history(
+        self, bug: Bug, outcome: FixOutcome, pr: PullRequest
+    ) -> None:
+        """Best-effort append of a history entry for this fix."""
+        if self._history is None or self._registry is None:
+            return
+        entry = self._registry.by_url(bug.repo_url)
+        if entry is None:
+            return
+        try:
+            from datetime import datetime, timezone
+
+            self._history.append(
+                entry,
+                HistoryEntry(
+                    bug_id=bug.id,
+                    ticket_title=bug.title,
+                    pr_url=pr.url,
+                    pr_number=pr.number,
+                    files_touched=outcome.changed_files,
+                    ai_summary=outcome.summary,
+                    ts=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                ),
+            )
+        except Exception as exc:  # noqa: BLE001
+            log.warning("history_append_failed", bug_id=bug.id, error=str(exc))
+
+    def _lookup_context(
+        self, repo_url: str
+    ) -> tuple[RepoIndex | None, tuple[str, ...], str]:
+        """Return the repo index, forbidden paths, and history block."""
+        if self._registry is None:
+            return None, (), ""
         entry = self._registry.by_url(repo_url)
         if entry is None:
             log.warning("repo_not_in_registry", repo_url=repo_url)
-            return None
+            return None, (), ""
+        forbidden = entry.forbidden_paths
+        history_block = ""
+        if self._history is not None:
+            recent = self._history.read_recent(entry, limit=10)
+            if recent:
+                history_block = self._history.to_prompt_block(recent)
+                log.info(
+                    "history_loaded",
+                    repo_url=repo_url,
+                    count=len(recent),
+                )
+        if self._index_store is None:
+            return None, forbidden, history_block
         index = self._index_store.load(entry)
         if index is None:
             log.warning("no_index_available", repo_url=repo_url)
-            return None
+            return None, forbidden, history_block
         log.info(
             "index_loaded",
             repo_url=repo_url,
             indexed_at=index.indexed_at,
             tree_entries=len(index.tree),
             language=index.detected_language,
+            forbidden_paths=len(forbidden),
         )
-        return index
+        return index, forbidden, history_block
 
     @staticmethod
     def _cleanup(sandbox: Path) -> None:

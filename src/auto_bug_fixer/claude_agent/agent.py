@@ -55,6 +55,8 @@ class ClaudeBugFixerAgent:
         bug: Bug,
         repo_root: Path,
         repo_index: RepoIndex | None = None,
+        forbidden_paths: tuple[str, ...] = (),
+        history_block: str = "",
     ) -> FixOutcome:
         """Run the agent on ``repo_root`` and return the outcome.
 
@@ -63,12 +65,19 @@ class ClaudeBugFixerAgent:
             repo_root: Absolute path to the cloned repo (sandbox root).
             repo_index: Optional pre-built knowledge of the repo, included in
                 the initial prompt so Claude starts with the right mental model.
+            forbidden_paths: Repo-relative paths that must never be written to.
+            history_block: Pre-rendered prompt section with past fixes.
         """
-        tools = SandboxedFileTools(repo_root=repo_root)
+        tools = SandboxedFileTools(
+            repo_root=repo_root,
+            forbidden_paths=forbidden_paths,
+        )
         messages: list[dict[str, Any]] = [
             {
                 "role": "user",
-                "content": _build_initial_user_message(bug, repo_index),
+                "content": _build_initial_user_message(
+                    bug, repo_index, forbidden_paths, history_block
+                ),
             },
         ]
 
@@ -134,20 +143,35 @@ class ClaudeBugFixerAgent:
         )
 
 
-def _build_initial_user_message(bug: Bug, repo_index: RepoIndex | None) -> str:
+def _build_initial_user_message(
+    bug: Bug,
+    repo_index: RepoIndex | None,
+    forbidden_paths: tuple[str, ...] = (),
+    history_block: str = "",
+) -> str:
     context_block = (
         "\n--- Pre-built repository index ---\n"
         f"{repo_index.to_prompt_block()}\n--- end index ---\n"
         if repo_index is not None
         else ""
     )
+    forbidden_block = ""
+    if forbidden_paths:
+        paths_list = "\n".join(f"  - {p}" for p in forbidden_paths)
+        forbidden_block = (
+            "\n--- FORBIDDEN FILES (do NOT read or modify these) ---\n"
+            f"{paths_list}\n--- end forbidden ---\n"
+        )
+    history_section = f"\n{history_block}\n" if history_block else ""
     return (
         f"Bug ID: {bug.id}\n"
         f"Title: {bug.title}\n"
         f"Repository: {bug.repo_url}\n"
         f"Base branch: {bug.base_branch}\n\n"
         f"--- Customer description ---\n{bug.description}\n--- end ---\n"
-        f"{context_block}\n"
+        f"{context_block}"
+        f"{forbidden_block}"
+        f"{history_section}\n"
         "The repository is already cloned at the sandbox root '.'. "
         "Investigate, fix, and call `finish` when done."
     )

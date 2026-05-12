@@ -11,6 +11,7 @@ strips HTML.
 from __future__ import annotations
 
 import html
+import re
 import smtplib
 import ssl
 from datetime import datetime, timezone
@@ -143,12 +144,16 @@ class EmailNotifier:
 def _render_success_text(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
     """Plain-text fallback. Mirrors the HTML version section by section."""
     files = "\n".join(f"  - {p}" for p in outcome.changed_files) or "  (אין)"
+    vercel = _build_vercel_preview_url(bug, pr)
+    vercel_line = f"Preview  : {vercel}\n" if vercel else ""
     return (
         f"{PRODUCT_NAME} — תיקון אוטומטי מוכן לבדיקה\n"
         f"{'=' * 60}\n\n"
         "שלום,\n"
         "בוט התיקון האוטומטי סיים לטפל בתקלה ופתח Pull Request.\n"
         "בבקשה עברי על השינוי, ואם הוא נראה לך — מזגי את ה-PR.\n\n"
+        f"  📁 {len(outcome.changed_files)} קבצים שהשתנו  |  "
+        f"🔀 PR #{pr.number}\n\n"
         "--- פרטי התקלה ---\n"
         f"מזהה תקלה   : {bug.id}\n"
         f"פרויקט      : {_or_dash(bug.project_name)}\n"
@@ -158,7 +163,7 @@ def _render_success_text(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
         f"זמן שליחה   : {_now_str()}\n\n"
         "--- תיאור התקלה (מהלקוח) ---\n"
         f"{bug.description}\n\n"
-        "--- מה הבוט עשה ---\n"
+        "--- מה הבוט עשה (Claude AI) ---\n"
         f"{outcome.summary}\n\n"
         f"--- קבצים שהשתנו ({len(outcome.changed_files)}) ---\n"
         f"{files}\n\n"
@@ -168,12 +173,21 @@ def _render_success_text(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
         f"סניף חדש: {pr.branch}\n"
         f"סניף בסיס: {bug.base_branch}\n"
         f"ריפו    : {bug.repo_url}\n"
-        f"קישור   : {pr.url}\n\n"
+        f"קישור   : {pr.url}\n"
+        f"{vercel_line}\n"
+        "--- ציר זמן ---\n"
+        "  1. 📩 הלקוח/ה דיווח/ה על באג\n"
+        "  2. 🤖 הבוט קיבל וניתח את הדיווח\n"
+        "  3. 🔍 הבוט חקר את הקוד ומצא את הבעיה\n"
+        f"  4. 🔧 הבוט שינה {len(outcome.changed_files)} קבצים\n"
+        f"  5. 📤 נפתח PR #{pr.number}\n"
+        "  6. 📧 נשלח המייל הזה\n\n"
         "--- הצעדים הבאים ---\n"
         "  1. פתחי את ה-PR בקישור למעלה.\n"
         "  2. עברי על השינויים בלשונית \"Files changed\".\n"
-        "  3. אם הכל בסדר — לחצי \"Merge pull request\".\n"
-        "  4. אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.\n\n"
+        "  3. בדקי את התצוגה המקדימה של Vercel (אם קיימת).\n"
+        "  4. אם הכל בסדר — לחצי \"Merge pull request\".\n"
+        "  5. אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.\n\n"
         "בהצלחה!\n"
         f"-- {PRODUCT_NAME}\n"
     )
@@ -210,23 +224,50 @@ def _render_failure_text(bug: Bug, outcome: FixOutcome) -> str:
 def _render_success_html(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
     files_html = (
         "".join(
-            f'<li><code style="font-family:Consolas,Monaco,monospace;'
+            f'<li style="margin-bottom:4px;">'
+            f'<a href="{html.escape(pr.url)}/files" '
+            f'style="color:#1565c0;text-decoration:none;">'
+            f'<code style="font-family:Consolas,Monaco,monospace;'
             f'background:#f4f4f4;padding:2px 6px;border-radius:3px;">'
-            f'{html.escape(p)}</code></li>'
+            f'{html.escape(p)}</code></a></li>'
             for p in outcome.changed_files
         )
         or "<li><em>אין</em></li>"
     )
+
+    # Build Vercel preview URL from the PR branch
+    vercel_preview = _build_vercel_preview_url(bug, pr)
+
+    # Stats bar
+    stats_items = [
+        f'<span style="margin-left:16px;">📁 {len(outcome.changed_files)} קבצים</span>',
+        f'<span style="margin-left:16px;">🔀 PR #{pr.number}</span>',
+    ]
+    if vercel_preview:
+        stats_items.append(
+            f'<span style="margin-left:16px;">🌐 '
+            f'<a href="{html.escape(vercel_preview, quote=True)}" '
+            f'style="color:#1565c0;text-decoration:none;">Preview</a></span>'
+        )
+    stats_bar = (
+        '<div style="padding:12px 24px;background:#f0f7ef;'
+        'border-bottom:1px solid #e0e0e0;text-align:center;'
+        'font-size:14px;color:#333;">'
+        + "".join(stats_items)
+        + '</div>'
+    )
+
     sections = [
         _banner_html(
             emoji="✅",
-            heading="התיקון מוכן לבדיקה",
+            heading="התיקון מוכן לבדיקה!",
             subheading=(
                 f"באג <code>{html.escape(bug.id)}</code> טופל אוטומטית "
                 "ונפתח Pull Request לבדיקתך."
             ),
             accent="#2e7d32",
         ),
+        stats_bar,
         _details_card_html(
             "פרטי התקלה",
             rows=[
@@ -242,7 +283,7 @@ def _render_success_html(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
             'תיאור התקלה (כפי שדווחה ע"י הלקוח/ה)',
             bug.description,
         ),
-        _quote_card_html("סיכום מה שהבוט עשה", outcome.summary),
+        _ai_summary_card_html(outcome.summary),
         _list_card_html(
             f"קבצים שהשתנו ({len(outcome.changed_files)})",
             files_html,
@@ -258,15 +299,34 @@ def _render_success_html(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
             ],
         ),
         _cta_html("עברי לבדיקת ה-PR ב-GitHub", pr.url, "#2e7d32"),
-        _next_steps_html(
-            [
-                'פתחי את ה-PR בקישור למעלה.',
-                'עברי על השינויים בלשונית "Files changed".',
-                'אם הכל בסדר — לחצי "Merge pull request".',
-                'אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.',
-            ]
-        ),
     ]
+
+    if vercel_preview:
+        sections.append(
+            _cta_html("צפי בתצוגה מקדימה (Vercel Preview)", vercel_preview, "#0070f3")
+        )
+
+    sections.append(
+        _timeline_html([
+            ("📩", "הלקוח/ה דיווח/ה על באג"),
+            ("🤖", "הבוט קיבל את הדיווח וניתח אותו"),
+            ("🔍", "הבוט חקר את הקוד ומצא את הבעיה"),
+            ("🔧", f"הבוט שינה {len(outcome.changed_files)} קבצים"),
+            ("📤", f"נפתח PR #{pr.number} לבדיקתך"),
+            ("📧", "נשלח המייל הזה — ממתינים לבדיקה!"),
+        ])
+    )
+
+    sections.append(
+        _next_steps_html([
+            'פתחי את ה-PR בקישור למעלה.',
+            'עברי על השינויים בלשונית "Files changed".',
+            'בדקי את התצוגה המקדימה של Vercel (אם קיימת).',
+            'אם הכל בסדר — לחצי "Merge pull request".',
+            'אם משהו לא נראה — סגרי את ה-PR או השאירי הערה.',
+        ])
+    )
+
     return _shell_html(
         title=f"{PRODUCT_NAME} — תיקון מוכן לבדיקה",
         accent="#2e7d32",
@@ -285,6 +345,12 @@ def _render_failure_html(bug: Bug, outcome: FixOutcome) -> str:
             ),
             accent="#c62828",
         ),
+        # Urgency bar
+        '<div style="padding:12px 24px;background:#fef2f2;'
+        'border-bottom:1px solid #fecaca;text-align:center;'
+        'font-size:14px;color:#991b1b;">'
+        '⏰ נדרש טיפול ידני — הבוט לא הצליח לפתור את הבעיה'
+        '</div>',
         _details_card_html(
             "פרטי התקלה",
             rows=[
@@ -299,8 +365,24 @@ def _render_failure_html(bug: Bug, outcome: FixOutcome) -> str:
             'תיאור התקלה (כפי שדווחה ע"י הלקוח/ה)',
             bug.description,
         ),
-        _quote_card_html("מה השתבש", outcome.error or "לא ידוע"),
-        _quote_card_html("הערות הבוט", outcome.summary),
+        _card_html(
+            title="מה השתבש",
+            inner=(
+                '<div style="background:#fef2f2;border-right:4px solid #dc2626;'
+                'padding:12px 16px;font-size:14px;color:#991b1b;line-height:1.55;'
+                'border-radius:4px;white-space:normal;word-break:break-word;">'
+                f'{html.escape(outcome.error or "לא ידוע").replace(chr(10), "<br>")}'
+                '</div>'
+            ),
+        ),
+        _ai_summary_card_html(outcome.summary),
+        _timeline_html([
+            ("📩", "הלקוח/ה דיווח/ה על באג"),
+            ("🤖", "הבוט קיבל את הדיווח וניתח אותו"),
+            ("🔍", "הבוט ניסה לחקור את הקוד"),
+            ("❌", "הבוט לא הצליח לפתור את הבעיה"),
+            ("📧", "נשלח מייל הודעה — נדרש טיפול ידני"),
+        ]),
     ]
     return _shell_html(
         title=f"{PRODUCT_NAME} — תיקון אוטומטי נכשל",
@@ -325,19 +407,32 @@ def _shell_html(*, title: str, accent: str, sections: list[str]) -> str:
         '<html dir="rtl" lang="he">'
         '<head>'
         '<meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
         f'<title>{html.escape(title)}</title>'
         '</head>'
         f'<body style="margin:0;padding:0;background:#f0f2f5;{_BASE_FONT}'
-        'color:#1f2933;direction:rtl;text-align:right;">'
+        'color:#1f2933;direction:rtl;text-align:right;'
+        '-webkit-font-smoothing:antialiased;">'
         '<div style="max-width:680px;margin:0 auto;padding:24px;">'
-        f'<div style="background:#ffffff;border-radius:8px;'
-        f'border-top:6px solid {accent};box-shadow:0 1px 3px rgba(0,0,0,0.08);'
+        # Logo header
+        '<div style="text-align:center;padding:12px 0 20px 0;">'
+        '<div style="display:inline-block;font-size:18px;font-weight:700;'
+        f'color:{accent};letter-spacing:-0.5px;">'
+        f'🤖 {html.escape(PRODUCT_NAME)}'
+        '</div>'
+        '</div>'
+        f'<div style="background:#ffffff;border-radius:12px;'
+        f'border-top:6px solid {accent};'
+        'box-shadow:0 2px 8px rgba(0,0,0,0.06),0 0 1px rgba(0,0,0,0.1);'
         'overflow:hidden;">'
         f'{body}'
-        '<div style="padding:16px 24px;background:#fafafa;'
-        'border-top:1px solid #eee;font-size:12px;color:#888;">'
-        f'נשלח אוטומטית ע"י <strong>{html.escape(PRODUCT_NAME)}</strong>. '
-        'אין צורך להשיב למייל זה.'
+        '<div style="padding:18px 24px;'
+        'background:linear-gradient(135deg,#fafafa 0%,#f5f5f5 100%);'
+        'border-top:1px solid #eee;font-size:12px;color:#888;'
+        'text-align:center;">'
+        f'נשלח אוטומטית ע"י <strong>{html.escape(PRODUCT_NAME)}</strong> '
+        f'| {html.escape(_now_str())}<br>'
+        '<span style="color:#aaa;">Powered by Claude AI</span>'
         '</div>'
         '</div>'
         '</div>'
@@ -430,6 +525,76 @@ def _cta_html(label: str, url: str, accent: str) -> str:
         f'{safe_url}'
         '</div>'
         '</div>'
+    )
+
+
+def _build_vercel_preview_url(bug: Bug, pr: PullRequest) -> str | None:
+    """Build a Vercel preview URL from the PR branch name.
+
+    Vercel generates preview URLs in the format:
+    {project}-git-{branch-slug}-{team}.vercel.app
+    """
+    if not bug.repo_url:
+        return None
+    # Extract repo name from URL
+    parts = bug.repo_url.rstrip("/").split("/")
+    if len(parts) < 2:
+        return None
+    repo_name = parts[-1].replace(".git", "")
+    owner = parts[-2]
+    # Vercel branch slug: lowercase, replace non-alnum with hyphen
+    branch_slug = pr.branch.lower()
+    branch_slug = re.sub(r"[^a-z0-9]+", "-", branch_slug).strip("-")
+    # Typical Vercel format for org projects
+    return (
+        f"https://{repo_name}-git-{branch_slug}-"
+        f"{owner}s-projects.vercel.app"
+    )
+
+
+def _ai_summary_card_html(summary: str) -> str:
+    """Render the AI summary with a distinctive style."""
+    body = html.escape(summary or "(אין סיכום)").replace("\n", "<br>")
+    return _card_html(
+        title="מה הבוט עשה (סיכום AI)",
+        inner=(
+            '<div style="background:linear-gradient(135deg,#f3e7ff 0%,#e8f4fd 100%);'
+            'border-right:4px solid #7c3aed;'
+            'padding:14px 18px;font-size:14px;color:#1f2937;line-height:1.6;'
+            'border-radius:6px;white-space:normal;word-break:break-word;">'
+            '<div style="font-size:12px;color:#6b21a8;font-weight:600;'
+            'margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">'
+            '🤖 Claude AI Analysis</div>'
+            f'{body}'
+            '</div>'
+        ),
+    )
+
+
+def _timeline_html(steps: list[tuple[str, str]]) -> str:
+    """Render a visual timeline of the fix process."""
+    items = []
+    for i, (icon, text) in enumerate(steps):
+        is_last = i == len(steps) - 1
+        connector = (
+            "" if is_last else
+            '<div style="position:absolute;right:11px;top:28px;bottom:-8px;'
+            'width:2px;background:#e0e0e0;"></div>'
+        )
+        items.append(
+            f'<div style="position:relative;padding-right:36px;'
+            f'padding-bottom:{0 if is_last else 12}px;min-height:28px;">'
+            f'<div style="position:absolute;right:0;top:0;width:24px;height:24px;'
+            f'border-radius:50%;background:#f0f7ef;border:2px solid #2e7d32;'
+            f'text-align:center;font-size:12px;line-height:24px;">{icon}</div>'
+            f'{connector}'
+            f'<div style="font-size:13px;color:#333;padding-top:3px;">'
+            f'{html.escape(text)}</div>'
+            f'</div>'
+        )
+    return _card_html(
+        title="ציר זמן",
+        inner='<div style="position:relative;">' + "".join(items) + '</div>',
     )
 
 

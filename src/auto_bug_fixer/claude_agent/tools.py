@@ -51,16 +51,23 @@ class ToolError(Exception):
 class SandboxedFileTools:
     """Filesystem + read-only shell tools confined to a single repo directory."""
 
-    def __init__(self, repo_root: Path) -> None:
+    def __init__(
+        self,
+        repo_root: Path,
+        forbidden_paths: tuple[str, ...] = (),
+    ) -> None:
         """Bind tools to a specific sandbox root.
 
         Args:
             repo_root: Absolute path to the cloned repository directory.
+            forbidden_paths: Repo-relative paths that must never be written to
+                (e.g. ``.env``, ``vercel.json``, ``package-lock.json``).
         """
         if not repo_root.is_absolute():
             raise ToolError(message="repo_root must be absolute")
         self._root = repo_root.resolve()
         self._touched: set[Path] = set()
+        self._forbidden = frozenset(forbidden_paths)
 
     @property
     def changed_files(self) -> list[str]:
@@ -111,9 +118,25 @@ class SandboxedFileTools:
         except UnicodeDecodeError as exc:
             raise ToolError(message=f"file not UTF-8 decodable: {rel_path}") from exc
 
+    def _check_forbidden(self, rel_path: str) -> None:
+        """Raise if ``rel_path`` matches any forbidden path pattern."""
+        if not self._forbidden:
+            return
+        normalized = rel_path.replace("\\", "/").strip("/")
+        for forbidden in self._forbidden:
+            fb = forbidden.replace("\\", "/").strip("/")
+            if normalized == fb or normalized.endswith(f"/{fb}"):
+                raise ToolError(
+                    message=(
+                        f"FORBIDDEN: '{rel_path}' is a protected file and must "
+                        f"not be modified. Protected files: {sorted(self._forbidden)}"
+                    )
+                )
+
     def write_file(self, rel_path: str, content: str) -> str:
         """Create or overwrite a file with ``content``."""
         target = self._resolve(rel_path)
+        self._check_forbidden(rel_path)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
         self._touched.add(target)

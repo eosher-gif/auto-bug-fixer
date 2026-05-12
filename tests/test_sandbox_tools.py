@@ -97,3 +97,40 @@ def test_changed_files_uses_posix_paths(tmp_path: Path) -> None:
     tools.write_file("a/b/c.txt", "x")
     tools.write_file("a/d.txt", "y")
     assert tools.changed_files == ["a/b/c.txt", "a/d.txt"]
+
+
+def test_forbidden_paths_blocks_write(tmp_path: Path) -> None:
+    tools = SandboxedFileTools(
+        repo_root=tmp_path,
+        forbidden_paths=(".env", "vercel.json", "package-lock.json"),
+    )
+    with pytest.raises(ToolError, match="FORBIDDEN"):
+        tools.write_file(".env", "SECRET=x")
+    with pytest.raises(ToolError, match="FORBIDDEN"):
+        tools.write_file("vercel.json", "{}")
+    with pytest.raises(ToolError, match="FORBIDDEN"):
+        tools.write_file("package-lock.json", "{}")
+
+
+def test_forbidden_paths_blocks_nested(tmp_path: Path) -> None:
+    tools = SandboxedFileTools(
+        repo_root=tmp_path,
+        forbidden_paths=("firebase.js", "lib/firebase.js"),
+    )
+    with pytest.raises(ToolError, match="FORBIDDEN"):
+        tools.write_file("lib/firebase.js", "bad")
+
+
+def test_forbidden_paths_allows_other_files(tmp_path: Path) -> None:
+    tools = SandboxedFileTools(
+        repo_root=tmp_path,
+        forbidden_paths=(".env", "vercel.json"),
+    )
+    tools.write_file("src/App.jsx", "fixed code")
+    assert tools.changed_files == ["src/App.jsx"]
+
+
+def test_forbidden_paths_empty_allows_all(tmp_path: Path) -> None:
+    tools = SandboxedFileTools(repo_root=tmp_path, forbidden_paths=())
+    tools.write_file("vercel.json", "{}")
+    assert tools.changed_files == ["vercel.json"]
