@@ -35,11 +35,24 @@ name: bug-fixer
 # Public repos get unlimited Actions minutes.
 
 on:
-  # Cron is intentionally DISABLED until FIREBASE_PROJECT_ID + FIREBASE_API_KEY
-  # are configured. Re-enable by uncommenting the 'schedule' block below.
+  # Cron is intentionally DISABLED until we are confident the pipeline
+  # is stable end-to-end. Re-enable by uncommenting the 'schedule' block
+  # below (suggest "*/15 * * * *" so we poll Firestore every 15 minutes).
   #
   # schedule:
   #   - cron: "*/15 * * * *"
+  #
+  # Push trigger fires on changes to the workflow file itself, the repo
+  # registry, requirements, or source. This lets us validate the
+  # pipeline end-to-end after a deploy without needing actions:write on
+  # any external PAT to call workflow_dispatch.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/bug-fixer.yml"
+      - "repos.yaml"
+      - "requirements.txt"
+      - "src/**"
   workflow_dispatch:
     inputs:
       max_bugs:
