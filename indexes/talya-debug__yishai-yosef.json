@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yishai-yosef",
   "default_branch": "main",
-  "indexed_at": "2026-05-12T17:20:28+00:00",
+  "indexed_at": "2026-05-12T19:00:16+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Yishai-Yosef storefront. Same stack as Argaman.",
@@ -44,6 +44,39 @@
     "public/",
     "public/guide.html",
     "README.md",
+    "screenshots/",
+    "screenshots/01_dashboard.png",
+    "screenshots/01_login.png",
+    "screenshots/02_after_login.png",
+    "screenshots/02_dashboard.png",
+    "screenshots/02_quote_loaded.png",
+    "screenshots/03_quote_builder.png",
+    "screenshots/03_quote_table.png",
+    "screenshots/04_milestones.png",
+    "screenshots/05_add_item_form.png",
+    "screenshots/06_after_empty_save.png",
+    "screenshots/07_category_dropdown.png",
+    "screenshots/08_mobile.png",
+    "screenshots/08_mobile_top.png",
+    "screenshots/09_mobile_scrolled.png",
+    "screenshots/09_mobile_table.png",
+    "screenshots/10_mobile_bottom.png",
+    "screenshots/21_before_billing_input.png",
+    "screenshots/22_billing_input_visible.png",
+    "screenshots/23_billing_input_filled.png",
+    "screenshots/24_billing_after_blur.png",
+    "screenshots/25_billing_after_reload.png",
+    "screenshots/26_totals_after_billing.png",
+    "screenshots/27_billing2_after_blur.png",
+    "screenshots/28_billing2_after_reload.png",
+    "screenshots/31_v2_new_empty.png",
+    "screenshots/32_v2_client_filled.png",
+    "screenshots/33_v2_add_cat.png",
+    "screenshots/34_v2_cat_dropdown.png",
+    "screenshots/35_v2_cat_selected.png",
+    "screenshots/36_v2_add_item_form.png",
+    "screenshots/37_v2_after_save.png",
+    "screenshots/38_v2_after_reload.png",
     "seed_price_list.sql",
     "src/",
     "src/api/",
@@ -149,6 +182,7 @@
     "src/pages/Projects.jsx",
     "src/pages/ProjectView.jsx",
     "src/pages/QuoteBuilder.jsx",
+    "src/pages/QuoteBuilderV2.jsx",
     "src/pages/Quotes.jsx",
     "src/pages/QuotesList.jsx",
     "src/pages/SignChangeOrder.jsx",
@@ -160,6 +194,9 @@
     "supabase-change-orders.sql",
     "supabase_schema.sql",
     "tailwind.config.js",
+    "test-quote.py",
+    "test-quote2.py",
+    "test-quote3.py",
     "test_data.sql",
     "test_e2e.mjs",
     "test_e2e_full.mjs",
@@ -245,25 +282,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
     "vaul": "^1.1.2",
-    "zod": "^3.24.2",
-    "@eslint/js": "^9.19.0",
-    "@types/node": "^22.13.5",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.20",
-    "baseline-browser-mapping": "^2.8.32",
-    "eslint": "^9.19.0",
-    "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.18",
-    "eslint-plugin-unused-imports": "^4.3.0",
-    "globals": "^15.14.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2",
-    "vite": "^6.1.0",
-    "xlsx": "^0.18.5"
+    "zod": "^3.24.2"
   },
   "routes": [
     "src/pages/Archive.jsx",
@@ -275,13 +294,12 @@
     "src/pages/ProjectView.jsx",
     "src/pages/Projects.jsx",
     "src/pages/QuoteBuilder.jsx",
+    "src/pages/QuoteBuilderV2.jsx",
     "src/pages/Quotes.jsx",
     "src/pages/QuotesList.jsx",
     "src/pages/SignChangeOrder.jsx",
     "src/pages/Training.jsx",
-    "src/pages/WorkLogForm.jsx",
-    "/",
-    "*"
+    "src/pages/WorkLogForm.jsx"
   ],
   "component_map": {
     "src/pages/Archive.jsx": [
@@ -344,6 +362,12 @@
       "@/components/ui/input",
       "../components/shared/PageHeader"
     ],
+    "src/pages/QuoteBuilderV2.jsx": [
+      "@/api/base44Client",
+      "../utils",
+      "@/components/ui/input",
+      "../components/shared/PageHeader"
+    ],
     "src/pages/Quotes.jsx": [
       "@/components/ui/button",
       "@/components/ui/input",
@@ -368,93 +392,12 @@
     "src/components/billing/BillingTable.jsx": [
       "@/components/ui/select",
       "@/components/ui/input"
-    ],
-    "src/components/billing/ProjectBillingRow.jsx": [
-      "@/components/ui/input",
-      "@/components/ui/select"
-    ],
-    "src/components/layout/Sidebar.jsx": [
-      "../../utils",
-      "./Logo",
-      "@/lib/AuthContext",
-      "@/lib/roles"
-    ],
-    "src/components/leads/LeadFormDialog.jsx": [
-      "@/components/ui/button",
-      "@/components/ui/input",
-      "@/components/ui/label"
-    ],
-    "src/components/projects/ProjectBilling.jsx": [
-      "@/api/base44Client",
-      "@/components/ui/select",
-      "@/components/ui/input",
-      "@/utils",
-      "@/lib/AuthContext",
-      "@/lib/roles"
-    ],
-    "src/components/projects/ProjectChangeOrders.jsx": [
-      "@/api/base44Client",
-      "@/components/ui/input"
-    ],
-    "src/components/projects/ProjectOverview.jsx": [
-      "@/api/base44Client",
-      "@/components/ui/input"
-    ],
-    "src/components/projects/ProjectPurchase.jsx": [
-      "@/api/base44Client",
-      "@/components/ui/input"
-    ],
-    "src/components/projects/ProjectTasks.jsx": [
-      "@/api/base44Client",
-      "@/components/ui/select"
-    ],
-    "src/components/projects/ProjectWorkLog.jsx": [
-      "@/api/base44Client",
-      "./WorkLogDetailDrawer"
-    ],
-    "src/components/quotes/PaymentTermsDialog.jsx": [
-      "@/components/ui/dialog",
-      "@/components/ui/button",
-      "@/components/ui/input"
-    ],
-    "src/components/shared/RequireAuth.jsx": [
-      "@/api/base44Client"
-    ],
-    "src/components/ui/accordion.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/alert-dialog.jsx": [
-      "@/lib/utils",
-      "@/components/ui/button"
-    ],
-    "src/components/ui/alert.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/avatar.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/badge.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/breadcrumb.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/button.jsx": [
-      "@/lib/utils"
-    ],
-    "src/components/ui/calendar.jsx": [
-      "@/lib/utils",
-      "@/components/ui/button"
     ]
   },
   "key_snippets": {
-    "package.json": "{\n  \"name\": \"base44-app\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint . --quiet\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"typecheck\": \"tsc -p ./jsconfig.json\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@base44/sdk\": \"^0.8.0\",\n    \"@base44/vite-plugin\": \"^1.0.0\",\n    \"@hello-pangea/dnd\": \"^17.0.0\",\n    \"@hookform/resolvers\": \"^4.1.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.3\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.2\",\n    \"@radix-ui/react-avatar\": \"^1.1.3\",\n    \"@radix-ui/react-checkbox\": \"^1.1.4\",\n    \"@radix-ui/react-collapsible\": \"^1.1.3\",\n    \"@radix-ui/react-context-menu\": \"^2.2.6\",\n    \"@radix-ui/react-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.6\",\n    \"@radix-ui/react-hover-card\": \"^1.1.6\",\n    \"@radix-ui/react-label\": \"^2.1.2\",\n    \"@radix-ui/react-menubar\": \"^1.1.6\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.5\",\n    \"@radix-ui/react-popover\": \"^1.1.6\",\n    \"@radix-ui/react-progress\": \"^1.1.2\",\n    \"@radix-ui/react-radio-group\": \"^1.2.3\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.3\",\n    \"@radix-ui/react-select\": \"^2.1.6\",\n    \"@radix-ui/react-separator\": \"^1.1.2\",\n    \"@radix-ui/react-slider\": \"^1.2.3\",\n    \"@radix-ui/react-slot\": \"^1.1.2\",\n    \"@radix-ui/react-switch\": \"^1.1.3\",\n    \"@radix-ui/react-tabs\": \"^1.1.3\",\n    \"@radix-ui/react-toast\": \"^1.2.2\",\n    \"@radix-ui/react-toggle\": \"^1.1.2\",\n    \"@radix-ui/react-toggle-group\": \"^1.1.2\",\n    \"@radix-ui/react-tooltip\": \"^1.1.8\",\n    \"@stripe/react-stripe-js\": \"^3.0.0\",\n    \"@stripe/stripe-js\": \"^5.2.0\",\n    \"@supabase/supabase-js\": \"^2.47.10\",\n    \"@tanstack/react-query\": \"^5.84.1\",\n    \"canvas-confetti\": \"^1.9.4\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"clsx\": \"^2.1.1\",\n    \"cmdk\": \"^1.0.0\",\n    \"date-fns\": \"^3.6.0\",\n    \"docx\": \"^8.5.0\",\n    \"embla-carousel-react\": \"^8.5.2\",\n    \"fast-equals\": \"^5.0.1\",\n    \"framer-motion\": \"^11.16.4\",\n    \"html2canvas\": \"^1.4.1\",\n    \"input-otp\": \"^1.4.2\",\n    \"jspdf\": \"^4.0.0\",\n    \"lodash\": \"^4.17.21\",\n    \"lucide-react\": \"^0.475.0\",\n    \"moment\": \"^2.30.1\",\n    \"next-themes\": \"^0.4.4\",\n    \"pg\": \"^8.20.0\",\n    \"react\": \"^18.2.0\",\n    \"react-day-picker\": \"^8.10.1\",\n    \"react-dom\": \"^18.2.0\",\n    \"react-hook-form\": \"^7.54.2\",\n    \"react-hot-toast\": \"^2.6.0\",\n    \"react-leaflet\": \"^4.2.1\",\n    \"react-markdown\": \"^9.0.1\",\n    \"react-quill\": \"^2.0.0\",\n    \"react-resizable-panels\": \"^2.1.7\",\n    \"react-router-dom\": \"^6.26.0\",\n    \"recharts\": \"^2.15.4\",\n    \"sonner\": \"^2.0.1\",\n    \"tailwind-merge\": \"^3.0.2\",\n    \"tailwindcss-animate\": \"^1.0.7\",\n    \"three\": \"^0.171.0\",\n    \"vaul\": \"^1.1.2\",\n    \"zod\": \"^3.24.2\"\n  },\n  \"devDependencies\": {\n    \"@eslint/js\": \"^9.19.0\",\n    \"@types/node\": \"^22.13.5\",\n    \"@types/react\": \"^18.2.66\",\n    \"@types/react-dom\": \"^18.2.22\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"autoprefixer\": \"^10.4.20\",\n    \"baseline-browser-mapping\": \"^2.8.32\",\n    \"eslint\": \"^9.19.0\",\n    \"eslint-plugin-react\": \"^7.37.4\",\n    \"eslint-plugin-react-hooks\": \"^5.0.0\",\n    \"eslint-plugin-react-refresh\": \"^0.4.18\",\n    \"eslint-plugin-unused-imports\": \"^4.3.0\",\n    \"globals\": \"^15.14.0\",\n    \"postcss\": \"^8.5.3\",\n    \"tailwindcss\": \"^3.4.17\",\n    \"typescript\": \"^5.8.2\",\n    \"vite\": \"^6.1.0\",\n    \"xlsx\": \"^0.18.5\"\n  }\n}\n",
+    "package.json": "{\n  \"name\": \"base44-app\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint . --quiet\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"typecheck\": \"tsc -p ./jsconfig.json\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@base44/sdk\": \"^0.8.0\",\n    \"@base44/vite-plugin\": \"^1.0.0\",\n    \"@hello-pangea/dnd\": \"^17.0.0\",\n    \"@hookform/resolvers\": \"^4.1.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.3\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.2\",\n    \"@radix-ui/react-avatar\": \"^1.1.3\",\n    \"@radix-ui/react-checkbox\": \"^1.1.4\",\n    \"@radix-ui/react-collapsible\": \"^1.1.3\",\n    \"@radix-ui/react-context-menu\": \"^2.2.6\",\n    \"@radix-ui/react-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.6\",\n    \"@radix-ui/react-hover-card\": \"^1.1.6\",\n    \"@radix-ui/react-label\": \"^2.1.2\",\n    \"@radix-ui/react-menubar\": \"^1.1.6\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.5\",\n    \"@radix-ui/react-popover\": \"^1.1.6\",\n    \"@radix-ui/react-progress\": \"^1.1.2\",\n    \"@radix-ui/react-radio-group\": \"^1.2.3\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.3\",\n    \"@radix-ui/react-select\": \"^2.1.6\",\n    \"@radix-ui/react-separator\": \"^1.1.2\",\n    \"@radix-ui/react-slider\": \"^1.2.3\",\n    \"@radix-ui/react-slot\": \"^1.1.2\",\n    \"@radix-ui/react-switch\": \"^1.1.3\",\n    \"@radix-ui/react-tabs\": \"^1.1.3\",\n    \"@radix-ui/react-toast\": \"^1.2.2\",\n    \"@radix-ui/react-toggle\": ",
     "vite.config.js": "import react from '@vitejs/plugin-react'\nimport { defineConfig } from 'vite'\nimport path from 'path'\n\nexport default defineConfig({\n  plugins: [react()],\n  resolve: {\n    alias: {\n      '@': path.resolve(__dirname, './src'),\n    },\n  },\n  build: {\n    target: 'es2015',\n  },\n})\n",
-    "src/App.jsx": "import { Toaster } from \"@/components/ui/toaster\"\nimport { QueryClientProvider } from '@tanstack/react-query'\nimport { queryClientInstance } from '@/lib/query-client'\nimport NavigationTracker from '@/lib/NavigationTracker'\nimport { pagesConfig } from './pages.config'\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport PageNotFound from './lib/PageNotFound';\nimport { AuthProvider, useAuth } from '@/lib/AuthContext';\nimport UserNotRegisteredError from '@/components/UserNotRegisteredError';\nimport Login from './pages/Login';\nimport { getAllowedPages } from '@/lib/roles';\nimport ErrorBoundary from '@/components/ErrorBoundary';\n\nconst { Pages, Layout, mainPage } = pagesConfig;\nconst mainPageKey = mainPage ?? Object.keys(Pages)[0];\nconst MainPage = mainPageKey ? Pages[mainPageKey] : <></>;\n\nconst LayoutWrapper = ({ children, currentPageName }) => Layout ?\n  <Layout currentPageName={currentPageName}>{children}</Layout>\n  : <>{children}</>;\n\n// \u05d3\u05e4\u05d9\u05dd \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9\u05d9\u05dd \u2014 \u05e0\u05d2\u05d9\u05e9\u05d9\u05dd \u05dc\u05dc\u05d0 \u05db\u05e0\u05d9\u05e1\u05d4\nconst PUBLIC_PAGES = ['WorkLogForm', 'SignChangeOrder'];\n\nconst AuthenticatedApp = () => {\n  const { isLoadingAuth, isAuthenticated, user } = useAuth();\n\n  // \u05d8\u05d5\u05e2\u05df \u2014 \u05d1\u05d5\u05d3\u05e7 \u05e1\u05e9\u05df\n  if (isLoadingAuth) {\n    return (\n      <div className=\"fixed inset-0 flex items-center justify-center\" style={{ backgroundColor: \"#F2EEE6\" }}>\n        <div className=\"w-8 h-8 border-4 border-[#D0C8BC] border-t-[#987F68] rounded-full animate-spin\"></div>\n      </div>\n    );\n  }\n\n  // \u05d3\u05e3 \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9 \u2014 \u05de\u05d0\u05e4\u05e9\u05e8 \u05d2\u05d9\u05e9\u05d4 \u05dc\u05dc\u05d0 \u05db\u05e0\u05d9\u05e1\u05d4\n  const currentPath = window.location.pathname.replace('/', '');\n  if (PUBLIC_PAGES.includes(currentPath)) {\n    return (\n      <Routes>\n        {Object.entries(pagesConfig.Pages)\n          .filter(([path]) => PUBLIC_PAGES.includes(path))\n          .map(([path, Page]) => (\n            <Route key={path} path={`/${path}`} element={<Page />} />\n          ))}\n      </Routes>\n    );\n  }\n\n  // \u05dc\u05d0 \u05de\u05d7\u05d5\u05d1\u05e8 \u2014 \u05de\u05e1\u05da \u05db\u05e0\u05d9\u05e1\u05d4\n  if (!isAuthenticated) {\n    return <Login />;\n  }\n\n  // \u05d4\u05e8\u05e9\u05d0\u05d5\u05ea \u2014 \u05d3\u05e4\u05d9\u05dd \u05de\u05d5\u05ea\u05e8\u05d9\u05dd \u05dc\u05e4\u05d9 \u05ea\u05e4\u05e7\u05d9\u05d3\n  const allowedPages = getAllowedPages(user?.email);\n  const defaultPage = allowedPages.includes(mainPageKey) ? mainPageKey : allowedPages[0] || mainPageKey;\n  const DefaultPageComponent = Pages[defaultPage] || MainPage;\n\n  // Render the main app\n  return (\n    <Routes>\n      <Route path=\"/\" element={\n        <LayoutWrapper currentPageName={defaultPage}>\n          <DefaultPageComponent />\n        </LayoutWrapper>\n      } />\n      {Object.entries(Pages).map(([path, Page]) => (\n        <Route\n          key={path}\n          path={`/${path}`}\n          element={\n            allowedPages.includes(path) ? (\n              <LayoutWrapper currentPageName={path}>\n                <Page />\n              </LayoutWrapper>\n            ) : (\n              <LayoutWrapper currentPageName={defaultPage}>\n                <DefaultPageComponent />\n              </LayoutWrapper>\n            )\n          }\n        />\n      ))}\n      <Route path=\"*\" element={<PageNotFound />} />\n    </Routes>\n  );\n};\n\n\nfunction App() {\n\n  return (\n    <ErrorBoundary>\n      <AuthProvider>\n        <QueryClientProvider client={queryClientInstance}>\n          <Router>\n            <NavigationTracker />\n            <ErrorBoundary>\n              <AuthenticatedApp />\n            </ErrorBoundary>\n          </Router>\n          <Toaster />\n        </QueryClientProvider>\n      </AuthProvider>\n    </ErrorBoundary>\n  )\n}\n\nexport default App\n",
-    "src/main.jsx": "import React from 'react'\nimport ReactDOM from 'react-dom/client'\nimport App from '@/App.jsx'\nimport '@/index.css'\n\nclass ErrorBoundary extends React.Component {\n  constructor(props) {\n    super(props);\n    this.state = { hasError: false, error: null };\n  }\n  static getDerivedStateFromError(error) {\n    return { hasError: true, error };\n  }\n  render() {\n    if (this.state.hasError) {\n      return React.createElement('div', {\n        dir: 'rtl',\n        style: { padding: '40px', fontFamily: 'sans-serif', textAlign: 'center' }\n      },\n        React.createElement('h1', { style: { color: '#C62828' } }, '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d8\u05e2\u05d9\u05e0\u05ea \u05d4\u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d4'),\n        React.createElement('pre', {\n          style: { background: '#f5f5f5', padding: '20px', borderRadius: '12px', textAlign: 'left', overflow: 'auto', marginTop: '20px', fontSize: '13px' }\n        }, String(this.state.error?.stack || this.state.error))\n      );\n    }\n    return this.props.children;\n  }\n}\n\nReactDOM.createRoot(document.getElementById('root')).render(\n  <ErrorBoundary>\n    <App />\n  </ErrorBoundary>\n)\n",
-    "src/pages.config.js": "/**\n * pages.config.js - Page routing configuration\n * \n * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.\n * Pages are auto-registered when you create files in the ./pages/ folder.\n * \n * THE ONLY EDITABLE VALUE: mainPage\n * This controls which page is the landing page (shown when users visit the app).\n * \n * Example file structure:\n * \n *   import HomePage from './pages/HomePage';\n *   import Dashboard from './pages/Dashboard';\n *   import Settings from './pages/Settings';\n *   \n *   export const PAGES = {\n *       \"HomePage\": HomePage,\n *       \"Dashboard\": Dashboard,\n *       \"Settings\": Settings,\n *   }\n *   \n *   export const pagesConfig = {\n *       mainPage: \"HomePage\",\n *       Pages: PAGES,\n *   };\n * \n * Example with Layout (wraps all pages):\n *\n *   import Home from './pages/Home';\n *   import Settings from './pages/Settings';\n *   import __Layout from './Layout.jsx';\n *\n *   export const PAGES = {\n *       \"Home\": Home,\n *       \"Settings\": Settings,\n *   }\n *\n *   export const pagesConfig = {\n *       mainPage: \"Home\",\n *       Pages: PAGES,\n *       Layout: __Layout,\n *   };\n *\n * To change the main page from HomePage to Dashboard, use find_replace:\n *   Old: mainPage: \"HomePage\",\n *   New: mainPage: \"Dashboard\",\n *\n * The mainPage value must match a key in the PAGES object exactly.\n */\nimport Archive from './pages/Archive';\nimport Billing from './pages/Billing';\nimport Dashboard from './pages/Dashboard';\nimport Leads from './pages/Leads';\nimport PriceList from './pages/PriceList';\nimport ProjectView from './pages/ProjectView';\nimport Projects from './pages/Projects';\nimport QuoteBuilder from './pages/QuoteBuilder';\nimport Quotes from './pages/Quotes';\nimport QuotesList from './pages/QuotesList';\nimport Training from './pages/Training';\nimport WorkLogForm from './pages/WorkLogForm';\nimport SignChangeOrder from './pages/SignChangeOrder';\nimport __Layout from './Layout.jsx';\n\n\nexport const PAGES = {\n    \"Archive\": Archive,\n    \"Billing\": Billing,\n    \"Dashboard\": Dashboard,\n    \"Leads\": Leads,\n    \"PriceList\": PriceList,\n    \"ProjectView\": ProjectView,\n    \"Projects\": Projects,\n    \"QuoteBuilder\": QuoteBuilder,\n    \"Quotes\": Quotes,\n    \"QuotesList\": QuotesList,\n    \"Training\": Training,\n    \"WorkLogForm\": WorkLogForm,\n    \"SignChangeOrder\": SignChangeOrder,\n}\n\nexport const pagesConfig = {\n    mainPage: \"Dashboard\",\n    Pages: PAGES,\n    Layout: __Layout,\n};",
-    "src/lib/utils.js": "import { clsx } from \"clsx\"\nimport { twMerge } from \"tailwind-merge\"\n\nexport function cn(...inputs) {\n  return twMerge(clsx(inputs))\n} \n\n\nexport const isIframe = window.self !== window.top;\n",
-    "tailwind.config.js": "/** @type {import('tailwindcss').Config} */\nmodule.exports = {\n    darkMode: [\"class\"],\n    content: [\"./index.html\", \"./src/**/*.{ts,tsx,js,jsx}\"],\n  theme: {\n  \textend: {\n  \t\tborderRadius: {\n  \t\t\tlg: 'var(--radius)',\n  \t\t\tmd: 'calc(var(--radius) - 2px)',\n  \t\t\tsm: 'calc(var(--radius) - 4px)'\n  \t\t},\n  \t\tcolors: {\n  \t\t\tbackground: 'hsl(var(--background))',\n  \t\t\tforeground: 'hsl(var(--foreground))',\n  \t\t\tcard: {\n  \t\t\t\tDEFAULT: 'hsl(var(--card))',\n  \t\t\t\tforeground: 'hsl(var(--card-foreground))'\n  \t\t\t},\n  \t\t\tpopover: {\n  \t\t\t\tDEFAULT: 'hsl(var(--popover))',\n  \t\t\t\tforeground: 'hsl(var(--popover-foreground))'\n  \t\t\t},\n  \t\t\tprimary: {\n  \t\t\t\tDEFAULT: 'hsl(var(--primary))',\n  \t\t\t\tforeground: 'hsl(var(--primary-foreground))'\n  \t\t\t},\n  \t\t\tsecondary: {\n  \t\t\t\tDEFAULT: 'hsl(var(--secondary))',\n  \t\t\t\tforeground: 'hsl(var(--secondary-foreground))'\n  \t\t\t},\n  \t\t\tmuted: {\n  \t\t\t\tDEFAULT: 'hsl(var(--muted))',\n  \t\t\t\tforeground: 'hsl(var(--muted-foreground))'\n  \t\t\t},\n  \t\t\taccent: {\n  \t\t\t\tDEFAULT: 'hsl(var(--accent))',\n  \t\t\t\tforeground: 'hsl(var(--accent-foreground))'\n  \t\t\t},\n  \t\t\tdestructive: {\n  \t\t\t\tDEFAULT: 'hsl(var(--destructive))',\n  \t\t\t\tforeground: 'hsl(var(--destructive-foreground))'\n  \t\t\t},\n  \t\t\tborder: 'hsl(var(--border))',\n  \t\t\tinput: 'hsl(var(--input))',\n  \t\t\tring: 'hsl(var(--ring))',\n  \t\t\tchart: {\n  \t\t\t\t'1': 'hsl(var(--chart-1))',\n  \t\t\t\t'2': 'hsl(var(--chart-2))',\n  \t\t\t\t'3': 'hsl(var(--chart-3))',\n  \t\t\t\t'4': 'hsl(var(--chart-4))',\n  \t\t\t\t'5': 'hsl(var(--chart-5))'\n  \t\t\t},\n  \t\t\tsidebar: {\n  \t\t\t\tDEFAULT: 'hsl(var(--sidebar-background))',\n  \t\t\t\tforeground: 'hsl(var(--sidebar-foreground))',\n  \t\t\t\tprimary: 'hsl(var(--sidebar-primary))',\n  \t\t\t\t'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',\n  \t\t\t\taccent: 'hsl(var(--sidebar-accent))',\n  \t\t\t\t'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',\n  \t\t\t\tborder: 'hsl(var(--sidebar-border))',\n  \t\t\t\tring: 'hsl(var(--sidebar-ring))'\n  \t\t\t}\n  \t\t},\n  \t\tkeyframes: {\n  \t\t\t'accordion-down': {\n  \t\t\t\tfrom: {\n  \t\t\t\t\theight: '0'\n  \t\t\t\t},\n  \t\t\t\tto: {\n  \t\t\t\t\theight: 'var(--radix-accordion-content-height)'\n  \t\t\t\t}\n  \t\t\t},\n  \t\t\t'accordion-up': {\n  \t\t\t\tfrom: {\n  \t\t\t\t\theight: 'var(--radix-accordion-content-height)'\n  \t\t\t\t},\n  \t\t\t\tto: {\n  \t\t\t\t\theight: '0'\n  \t\t\t\t}\n  \t\t\t}\n  \t\t},\n  \t\tanimation: {\n  \t\t\t'accordion-down': 'accordion-down 0.2s ease-out',\n  \t\t\t'accordion-up': 'accordion-up 0.2s ease-out'\n  \t\t}\n  \t}\n  },\n  plugins: [require(\"tailwindcss-animate\")],\n}"
+    "src/App.jsx": "import { Toaster } from \"@/components/ui/toaster\"\nimport { QueryClientProvider } from '@tanstack/react-query'\nimport { queryClientInstance } from '@/lib/query-client'\nimport NavigationTracker from '@/lib/NavigationTracker'\nimport { pagesConfig } from './pages.config'\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport PageNotFound from './lib/PageNotFound';\nimport { AuthProvider, useAuth } from '@/lib/AuthContext';\nimport UserNotRegisteredError from '@/components/UserNotRegisteredError';\nimport Login from './pages/Login';\nimport { getAllowedPages } from '@/lib/roles';\nimport ErrorBoundary from '@/components/ErrorBoundary';\n\nconst { Pages, Layout, mainPage } = pagesConfig;\nconst mainPageKey = mainPage ?? Object.keys(Pages)[0];\nconst MainPage = mainPageKey ? Pages[mainPageKey] : <></>;\n\nconst LayoutWrapper = ({ children, currentPageName }) => Layout ?\n  <Layout currentPageName={currentPageName}>{children}</Layout>\n  : <>{children}</>;\n\n// \u05d3\u05e4\u05d9\u05dd \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9\u05d9\u05dd \u2014 \u05e0\u05d2\u05d9\u05e9\u05d9\u05dd \u05dc\u05dc\u05d0 \u05db\u05e0\u05d9\u05e1\u05d4\nconst PUBLIC_PAGES = ['WorkLogForm', 'SignChangeOrder'];\n\nconst AuthenticatedApp = () => {\n  const { isLoadingAuth, isAuthenticated, user } = useAuth();\n\n  // \u05d8\u05d5\u05e2\u05df \u2014 \u05d1\u05d5\u05d3\u05e7 \u05e1\u05e9\u05df\n  if (isLoadingAuth) {\n    return (\n      <div className=\"fixed inset-0 flex items-center justify-center\" style={{ backgroundColor: \"#F2EEE6\" }}>\n        <div className=\"w-8 h-8 border-4 border-[#D0C8BC] border-t-[#987F68] rounded-full animate-spin\"></div>\n      </div>\n"
   },
   "entry_points": [
     "src/main.jsx",
