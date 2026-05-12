@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     anthropic_api_key: SecretStr
     anthropic_model: str = "claude-sonnet-4-5-20250929"
     claude_max_tool_iterations: int = Field(default=15, ge=1, le=200)
-    claude_max_output_tokens: int = Field(default=4096, ge=512, le=64000)
+    claude_max_output_tokens: int = Field(default=8192, ge=512, le=64000)
 
     # ---------- Firestore (bug source) ----------
     # We talk to Firestore via the public REST API + the project's web API

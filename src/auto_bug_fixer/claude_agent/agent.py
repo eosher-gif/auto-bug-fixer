@@ -43,8 +43,8 @@ class ClaudeAgentError(RuntimeError):
 class ClaudeBugFixerAgent:
     """Drives Claude with sandboxed tools until it calls ``finish``."""
 
-    MAX_RATE_LIMIT_RETRIES = 5
-    RATE_LIMIT_BASE_WAIT = 30  # seconds
+    MAX_RATE_LIMIT_RETRIES = 3
+    RATE_LIMIT_BASE_WAIT = 65  # seconds — Anthropic rate limits reset per minute
 
     def __init__(self, settings: Settings) -> None:
         """Create an agent bound to a configured Anthropic client."""
