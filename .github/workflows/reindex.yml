@@ -7,7 +7,9 @@ name: reindex
 # REQUIRED REPOSITORY SECRETS (same set as bug-fixer.yml):
 #   ANTHROPIC_API_KEY    - required by Settings, not actually used here
 #   FIREBASE_API_KEY     - required by Settings, not actually used here
-#   TALYA_TOKEN          - Talya's PAT, used to clone target repos in repos.yaml
+#   TALYA_TOKEN          - Talya's PAT, used to clone target (private) repos
+#                          in repos.yaml. MUST be Talya's PAT, not Eilon's,
+#                          because Eilon has no access to talya-debug/* repos.
 # REQUIRED REPOSITORY VARIABLES:
 #   FIREBASE_PROJECT_ID  - required by Settings, not actually used here
 
@@ -53,18 +55,17 @@ jobs:
       - name: Build indexes for every repo in repos.yaml
         env:
           PYTHONPATH: src
-          # The indexer needs a token that can clone target repos. For PUBLIC
-          # target repos we can omit this and clone anonymously, but PATs work
-          # for both, so we always pass one through.
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
-          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
+          # The indexer needs a token that can clone target repos. Talya's
+          # repos are private, so we MUST use TALYA_TOKEN (not GH_TOKEN).
+          GITHUB_TOKEN: ${{ secrets.TALYA_TOKEN }}
+          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME || 'auto-bug-fixer[bot]' }}
+          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL || 'auto-bug-fixer-bot@users.noreply.github.com' }}
           # Required by Settings (not actually used in index-once mode).
-          # Email defaults to disabled so SMTP_* secrets are optional.
+          # Email is forced off in indexing mode so SMTP_* secrets are optional.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
+          EMAIL_ENABLED: "false"
           REPOS_FILE: ${{ github.workspace }}/repos.yaml
           INDEX_DIR: ${{ github.workspace }}/indexes
           HEALTH_ENABLED: "false"

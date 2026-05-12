@@ -19,10 +19,14 @@ name: bug-fixer
 #   FIREBASE_PROJECT_ID  - e.g. service-tickets-cb56a
 #
 # OPTIONAL REPOSITORY VARIABLES:
-#   ANTHROPIC_MODEL, FIRESTORE_COLLECTION, FIRESTORE_TYPE_FILTER,
-#   BUG_STATUS_NEW, BUG_STATUS_PROCESSING, BUG_STATUS_MR_OPENED,
-#   BUG_STATUS_FAILED, MAX_BUGS_PER_RUN, EMAIL_ENABLED,
+#   ANTHROPIC_MODEL, MAX_BUGS_PER_RUN, EMAIL_ENABLED, SMTP_PORT,
 #   GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL, NOTIFY_FROM, NOTIFY_CC
+#
+# Status names (open / processing / mr_opened / failed) and the
+# collection / type filter (tickets / bug) are intentionally NOT
+# forwarded as env vars: the code defaults already match Talya's
+# production schema. Override via src/auto_bug_fixer/config.py
+# defaults if you need different values.
 #
 # Missing secrets evaluate to "" in GitHub Actions and Settings will reject
 # them at startup, so the workflow fails fast rather than silently.
@@ -75,27 +79,26 @@ jobs:
           PYTHONPATH: src
           # Anthropic
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929' }}
           # Firestore (bug source) — REST + API key (no service-account key
           # because Talya's GCP project blocks key creation by org policy).
+          # Status / collection / type-filter are NOT forwarded from repo
+          # variables on purpose: the code defaults already match Talya's
+          # production schema (collection="tickets", type filter="bug",
+          # status="open"). Forwarding `${{ vars.X }}` for an unset variable
+          # silently overrides those defaults with the empty string.
           FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          FIRESTORE_COLLECTION: ${{ vars.FIRESTORE_COLLECTION }}
-          FIRESTORE_TYPE_FILTER: ${{ vars.FIRESTORE_TYPE_FILTER }}
-          BUG_STATUS_NEW: ${{ vars.BUG_STATUS_NEW }}
-          BUG_STATUS_PROCESSING: ${{ vars.BUG_STATUS_PROCESSING }}
-          BUG_STATUS_MR_OPENED: ${{ vars.BUG_STATUS_MR_OPENED }}
-          BUG_STATUS_FAILED: ${{ vars.BUG_STATUS_FAILED }}
-          MAX_BUGS_PER_RUN: ${{ inputs.max_bugs || vars.MAX_BUGS_PER_RUN }}
+          MAX_BUGS_PER_RUN: ${{ inputs.max_bugs || vars.MAX_BUGS_PER_RUN || '3' }}
           # GitHub (PR creation on TARGET repos) — Talya's PAT
           GITHUB_TOKEN: ${{ secrets.TALYA_TOKEN }}
-          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME }}
-          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL }}
+          GIT_COMMITTER_NAME: ${{ vars.GIT_COMMITTER_NAME || 'auto-bug-fixer[bot]' }}
+          GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL || 'auto-bug-fixer-bot@users.noreply.github.com' }}
           # Email is disabled by default. Flip EMAIL_ENABLED variable to "true"
           # in repo settings (Variables) once SMTP_* secrets exist.
           EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
