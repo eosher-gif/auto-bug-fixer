@@ -91,6 +91,9 @@ class Settings(BaseSettings):
     notify_from: str = ""
     notify_cc: str = ""
 
+    # Vercel (optional — for preview URL in emails)
+    vercel_token: SecretStr = SecretStr("")
+
     # Sandbox
     workspace_dir: Path = Path("/tmp/auto-bug-fixer")
     git_operation_timeout_seconds: int = Field(default=300, ge=10, le=3600)

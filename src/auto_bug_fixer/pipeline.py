@@ -18,6 +18,7 @@ from auto_bug_fixer.logging_setup import get_logger
 from auto_bug_fixer.models import Bug, FixOutcome, PullRequest
 from auto_bug_fixer.notify.email_sender import EmailDeliveryError, EmailNotifier
 from auto_bug_fixer.registry import RepoRegistry
+from auto_bug_fixer.vercel_preview import find_project_id, get_preview_url
 
 log = get_logger(__name__)
 
@@ -137,6 +138,8 @@ class BugFixPipeline:
                     ),
                 )
                 return
+            # Fetch Vercel preview URL
+            pr.preview_url = self._fetch_vercel_preview(bug, pr)
             self._handle_success(bug, outcome, pr)
         except (GitOperationError, GitHubAPIError, ClaudeAgentError) as exc:
             self._handle_failure(
@@ -223,6 +226,36 @@ class BugFixPipeline:
             self._email.notify_failure(bug, outcome)
         except EmailDeliveryError as exc:
             log.error("email_failed", bug_id=bug.id, error=str(exc))
+
+    def _fetch_vercel_preview(self, bug: Bug, pr: PullRequest) -> str | None:
+        """Best-effort fetch of Vercel preview URL after deploy."""
+        token = self._settings.vercel_token.get_secret_value()
+        if not token:
+            return None
+        try:
+            coords = parse_github_url(bug.repo_url)
+            project_id = find_project_id(token, coords.name)
+            if not project_id:
+                return None
+            # Get the HEAD SHA of the PR branch
+            resp = __import__("httpx").get(
+                f"{self._settings.github_api_url}/repos/{coords.owner}/{coords.name}"
+                f"/pulls/{pr.number}",
+                headers={
+                    "Authorization": f"Bearer {self._settings.github_token.get_secret_value()}",
+                    "Accept": "application/vnd.github+json",
+                },
+                timeout=15,
+            )
+            if resp.status_code >= 400:
+                return None
+            sha = resp.json().get("head", {}).get("sha", "")
+            if not sha:
+                return None
+            return get_preview_url(token, project_id, sha, max_wait=90)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("vercel_preview_fetch_failed", error=str(exc))
+            return None
 
     @staticmethod
     def _safe_attach(fn, bug_id: str, value: str) -> None:

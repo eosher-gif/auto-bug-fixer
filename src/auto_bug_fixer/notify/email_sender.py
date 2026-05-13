@@ -539,12 +539,8 @@ def _cta_html(label: str, url: str, accent: str) -> str:
 
 
 def _build_vercel_preview_url(bug: Bug, pr: PullRequest) -> str | None:
-    """Return None — Vercel preview URLs use unpredictable hashes.
-
-    The Vercel bot posts the real preview URL as a PR comment, so we
-    direct users to the PR instead of guessing a broken URL.
-    """
-    return None
+    """Return the Vercel preview URL if available on the PR object."""
+    return pr.preview_url
 
 
 def _ai_summary_card_html(summary: str) -> str:

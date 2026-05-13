@@ -113,6 +113,8 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
           NOTIFY_CC: ${{ vars.NOTIFY_CC }}
+          # Vercel (preview URL in emails)
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           # Sandbox + indexing
           WORKSPACE_DIR: /tmp/auto-bug-fixer
           REPOS_FILE: ${{ github.workspace }}/repos.yaml

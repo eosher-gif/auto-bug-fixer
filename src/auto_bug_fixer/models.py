@@ -46,3 +46,4 @@ class PullRequest:
     url: str
     branch: str
     title: str
+    preview_url: str | None = None
