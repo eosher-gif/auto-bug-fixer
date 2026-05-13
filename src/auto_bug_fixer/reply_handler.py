@@ -40,6 +40,10 @@ class ReplyHandler:
         created = 0
         for reply in replies:
             try:
+                # Exact match: "אושר מאשר" → auto-merge the PR
+                if reply.feedback.strip() == "אושר מאשר":
+                    self._auto_merge(reply)
+                    continue
                 if self._create_followup(reply):
                     created += 1
             except Exception as exc:  # noqa: BLE001
@@ -125,6 +129,70 @@ class ReplyHandler:
             feedback_length=len(reply.feedback),
         )
         return True
+
+    def _auto_merge(self, reply: ReplyMessage) -> None:
+        """Merge the PR when Talya replies with exactly 'אושר מאשר'."""
+        original = self._fetch_original(reply.bug_id)
+        if original is None:
+            log.warning("merge_original_not_found", bug_id=reply.bug_id)
+            return
+        pr_url = original.get("pr_url", "")
+        if not pr_url:
+            log.warning("merge_no_pr_url", bug_id=reply.bug_id)
+            return
+
+        parts = pr_url.rstrip("/").split("/")
+        if len(parts) < 5 or parts[-2] != "pull":
+            log.warning("merge_invalid_pr_url", pr_url=pr_url)
+            return
+        owner, repo, pr_number = parts[-4], parts[-3], parts[-1]
+
+        merge_url = (
+            f"{self._settings.github_api_url}/repos/{owner}/{repo}"
+            f"/pulls/{pr_number}/merge"
+        )
+        try:
+            resp = httpx.put(
+                merge_url,
+                headers={
+                    "Authorization": f"Bearer {self._settings.github_token.get_secret_value()}",
+                    "Accept": "application/vnd.github+json",
+                },
+                json={"merge_method": "squash"},
+                timeout=30,
+            )
+            if resp.status_code < 300:
+                log.info(
+                    "pr_auto_merged",
+                    bug_id=reply.bug_id,
+                    pr_url=pr_url,
+                    pr_number=pr_number,
+                )
+                # Update ticket status
+                self._update_status(reply.bug_id, "merged")
+            else:
+                log.warning(
+                    "merge_failed",
+                    bug_id=reply.bug_id,
+                    status=resp.status_code,
+                    body=resp.text[:200],
+                )
+        except (httpx.HTTPError, OSError) as exc:
+            log.warning("merge_error", bug_id=reply.bug_id, error=str(exc))
+
+    def _update_status(self, bug_id: str, status: str) -> None:
+        """Update ticket status in Firestore."""
+        url = f"{self._base_url}/{bug_id}"
+        body = {"fields": {"status": {"stringValue": status}}}
+        try:
+            httpx.patch(
+                url,
+                params={"key": self._api_key, "updateMask.fieldPaths": ["status"]},
+                json=body,
+                timeout=15,
+            )
+        except (httpx.HTTPError, OSError):
+            pass
 
     def _fetch_original(self, bug_id: str) -> dict[str, str] | None:
         """Fetch original bug fields from Firestore."""

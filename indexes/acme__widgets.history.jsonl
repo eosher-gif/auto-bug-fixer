@@ -20,3 +20,5 @@
 {"bug_id": "B-42", "ticket_title": "title", "pr_url": "https://github.com/acme/widgets/pull/100", "pr_number": 100, "files_touched": ["x.py"], "ai_summary": "fixed it", "ts": "2026-05-13T05:27:56+00:00"}
 {"bug_id": "B-42", "ticket_title": "title", "pr_url": "https://github.com/acme/widgets/pull/100", "pr_number": 100, "files_touched": ["src/x.py"], "ai_summary": "fixed it", "ts": "2026-05-13T05:47:39+00:00"}
 {"bug_id": "B-42", "ticket_title": "title", "pr_url": "https://github.com/acme/widgets/pull/100", "pr_number": 100, "files_touched": ["x.py"], "ai_summary": "fixed it", "ts": "2026-05-13T05:47:39+00:00"}
+{"bug_id": "B-42", "ticket_title": "title", "pr_url": "https://github.com/acme/widgets/pull/100", "pr_number": 100, "files_touched": ["src/x.py"], "ai_summary": "fixed it", "ts": "2026-05-13T06:09:42+00:00"}
+{"bug_id": "B-42", "ticket_title": "title", "pr_url": "https://github.com/acme/widgets/pull/100", "pr_number": 100, "files_touched": ["x.py"], "ai_summary": "fixed it", "ts": "2026-05-13T06:09:42+00:00"}

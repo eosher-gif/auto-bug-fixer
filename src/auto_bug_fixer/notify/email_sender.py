@@ -149,9 +149,12 @@ def _render_success_text(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
     return (
         f"{PRODUCT_NAME} — תיקון אוטומטי מוכן לבדיקה\n"
         f"{'=' * 60}\n\n"
+        f"🔗 קישור ל-PR: {pr.url}\n\n"
         "שלום,\n"
         "בוט התיקון האוטומטי סיים לטפל בתקלה ופתח Pull Request.\n"
         "בבקשה עברי על השינוי, ואם הוא נראה לך — מזגי את ה-PR.\n\n"
+        "לאישור התיקון — השיבי למייל הזה עם המילים: אושר מאשר\n"
+        "לבקשת שינוי — השיבי עם תיאור מה לתקן.\n\n"
         f"  📁 {len(outcome.changed_files)} קבצים שהשתנו  |  "
         f"🔀 PR #{pr.number}\n\n"
         "--- פרטי התקלה ---\n"
@@ -268,6 +271,13 @@ def _render_success_html(bug: Bug, outcome: FixOutcome, pr: PullRequest) -> str:
             accent="#2e7d32",
         ),
         stats_bar,
+        # Approval / feedback instructions
+        '<div style="padding:12px 24px;background:#fff8e1;'
+        'border-bottom:1px solid #ffe082;font-size:13px;color:#6d4c00;'
+        'text-align:center;line-height:1.6;">'
+        '✅ לאישור התיקון — השיבי למייל הזה עם: <strong>אושר מאשר</strong><br>'
+        '✏️ לבקשת שינוי — השיבי עם תיאור מה לתקן'
+        '</div>',
         _details_card_html(
             "פרטי התקלה",
             rows=[
