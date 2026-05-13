@@ -36,7 +36,7 @@ name: bug-fixer
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
   # Push trigger fires on changes to the workflow file itself, the repo
   # registry, requirements, or source. This lets us validate the
   # pipeline end-to-end after a deploy without needing actions:write on
