@@ -104,7 +104,7 @@ jobs:
           GIT_COMMITTER_EMAIL: ${{ vars.GIT_COMMITTER_EMAIL || 'auto-bug-fixer-bot@users.noreply.github.com' }}
           # Email is disabled by default. Flip EMAIL_ENABLED variable to "true"
           # in repo settings (Variables) once SMTP_* secrets exist.
-          EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
+          EMAIL_ENABLED: "true"
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
