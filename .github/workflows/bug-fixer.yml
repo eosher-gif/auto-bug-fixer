@@ -133,3 +133,22 @@ jobs:
           else
             echo "No history changes."
           fi
+
+      - name: Schedule next run (5 min delay)
+        if: always()
+        env:
+          DISPATCH_TOKEN: ${{ secrets.DISPATCH_PAT }}
+        run: |
+          if [ -z "$DISPATCH_TOKEN" ]; then
+            echo "No DISPATCH_PAT secret — skipping self-trigger."
+            exit 0
+          fi
+          echo "Waiting 5 minutes before next trigger..."
+          sleep 300
+          curl -sL -X POST \
+            -H "Authorization: Bearer $DISPATCH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -d '{"ref":"main"}' \
+            "https://api.github.com/repos/eosher-gif/auto-bug-fixer/actions/workflows/bug-fixer.yml/dispatches" \
+            && echo "Next run dispatched." \
+            || echo "Dispatch failed (non-critical)."
