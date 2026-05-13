@@ -57,7 +57,7 @@ on:
 
 concurrency:
   group: bug-fixer
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -65,7 +65,7 @@ permissions:
 jobs:
   process-bugs:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout (with indexes/ folder for repo context)
         uses: actions/checkout@v4
@@ -135,7 +135,7 @@ jobs:
           fi
 
       - name: Schedule next run (5 min delay)
-        if: always()
+        if: success() || failure()
         env:
           DISPATCH_TOKEN: ${{ secrets.DISPATCH_PAT }}
         run: |

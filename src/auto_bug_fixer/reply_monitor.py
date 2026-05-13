@@ -53,8 +53,18 @@ class ReplyMonitor:
 
         try:
             return self._fetch_replies()
-        except (imaplib.IMAP4.error, OSError) as exc:
-            log.warning("reply_monitor_error", error=str(exc))
+        except imaplib.IMAP4.error as exc:
+            error_msg = str(exc)
+            if "AUTHENTICATIONFAILED" in error_msg.upper():
+                log.warning(
+                    "reply_monitor_auth_failed",
+                    hint="Check SMTP_PASSWORD (App Password) and that IMAP is enabled in Gmail settings",
+                )
+            else:
+                log.warning("reply_monitor_imap_error", error=error_msg)
+            return []
+        except OSError as exc:
+            log.warning("reply_monitor_network_error", error=str(exc))
             return []
 
     def _fetch_replies(self) -> list[ReplyMessage]:

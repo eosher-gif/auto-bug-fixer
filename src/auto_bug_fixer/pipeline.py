@@ -98,9 +98,21 @@ class BugFixPipeline:
 
         sandbox = self._settings.workspace_dir / f"bug-{bug.id}-{int(time.time())}"
         try:
-            # Follow-up: clone the PR branch, not main
+            # Follow-up: clone the PR branch, not main.
+            # Fall back to base_branch if the source branch was deleted.
             clone_branch = bug.source_branch or bug.base_branch
-            self._git.clone(bug.repo_url, clone_branch, sandbox)
+            try:
+                self._git.clone(bug.repo_url, clone_branch, sandbox)
+            except GitOperationError:
+                if bug.source_branch:
+                    log.warning(
+                        "source_branch_gone",
+                        branch=bug.source_branch,
+                        fallback=bug.base_branch,
+                    )
+                    self._git.clone(bug.repo_url, bug.base_branch, sandbox)
+                else:
+                    raise
             repo_index, forbidden_paths, history_block = self._lookup_context(
                 bug.repo_url
             )
