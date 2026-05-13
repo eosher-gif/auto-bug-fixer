@@ -162,20 +162,22 @@ class BugFixPipeline:
             )
             if not self._git.commit_all(sandbox, commit_message):
                 return None
+            sha = _get_head_sha(sandbox)
             self._git.push(sandbox, bug.source_branch, bug.repo_url)
             log.info(
                 "followup_pushed",
                 bug_id=bug.id,
                 branch=bug.source_branch,
                 pr_url=bug.source_pr_url,
+                sha=sha,
             )
-            # Return a PullRequest pointing to the existing PR
             pr_number = _extract_pr_number(bug.source_pr_url or "")
             return PullRequest(
                 number=pr_number,
                 url=bug.source_pr_url or "",
                 branch=bug.source_branch,
                 title=f"[auto] Follow-up fix: {bug.title}",
+                commit_sha=sha,
             )
 
         # New bug: create new branch + PR
@@ -184,18 +186,21 @@ class BugFixPipeline:
         commit_message = f"fix(bug-{bug.id}): {bug.title}\n\n{outcome.summary}"
         if not self._git.commit_all(sandbox, commit_message):
             return None
+        sha = _get_head_sha(sandbox)
         self._git.push(sandbox, branch, bug.repo_url)
 
         coords = parse_github_url(bug.repo_url)
         pr_title = f"[auto] Fix bug {bug.id}: {bug.title}"
         pr_body = _render_pr_body(bug, outcome)
-        return self._github.open_pull_request(
+        pr = self._github.open_pull_request(
             coords,
             title=pr_title,
             body=pr_body,
             head_branch=branch,
             base_branch=bug.base_branch,
         )
+        pr.commit_sha = sha
+        return pr
 
     def _handle_success(
         self,
@@ -228,31 +233,16 @@ class BugFixPipeline:
             log.error("email_failed", bug_id=bug.id, error=str(exc))
 
     def _fetch_vercel_preview(self, bug: Bug, pr: PullRequest) -> str | None:
-        """Best-effort fetch of Vercel preview URL after deploy."""
+        """Best-effort fetch of Vercel preview URL for the exact commit."""
         token = self._settings.vercel_token.get_secret_value()
-        if not token:
+        if not token or not pr.commit_sha:
             return None
         try:
             coords = parse_github_url(bug.repo_url)
             project_id = find_project_id(token, coords.name)
             if not project_id:
                 return None
-            # Get the HEAD SHA of the PR branch
-            resp = __import__("httpx").get(
-                f"{self._settings.github_api_url}/repos/{coords.owner}/{coords.name}"
-                f"/pulls/{pr.number}",
-                headers={
-                    "Authorization": f"Bearer {self._settings.github_token.get_secret_value()}",
-                    "Accept": "application/vnd.github+json",
-                },
-                timeout=15,
-            )
-            if resp.status_code >= 400:
-                return None
-            sha = resp.json().get("head", {}).get("sha", "")
-            if not sha:
-                return None
-            return get_preview_url(token, project_id, sha, max_wait=90)
+            return get_preview_url(token, project_id, pr.commit_sha, max_wait=90)
         except Exception as exc:  # noqa: BLE001
             log.warning("vercel_preview_fetch_failed", error=str(exc))
             return None
@@ -333,6 +323,19 @@ class BugFixPipeline:
     def _cleanup(sandbox: Path) -> None:
         if sandbox.exists():
             shutil.rmtree(sandbox, ignore_errors=True)
+
+
+def _get_head_sha(sandbox: Path) -> str:
+    """Get the HEAD commit SHA from the local sandbox."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(sandbox), capture_output=True, text=True, check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.SubprocessError:
+        return ""
 
 
 def _extract_pr_number(pr_url: str) -> int:

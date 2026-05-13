@@ -47,3 +47,4 @@ class PullRequest:
     branch: str
     title: str
     preview_url: str | None = None
+    commit_sha: str | None = None
