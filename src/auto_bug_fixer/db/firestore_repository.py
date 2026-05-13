@@ -262,6 +262,8 @@ class FirestoreBugRepository:
             customer_name=_optional_str(data.get(s.firestore_customer_name_field)),
             project_name=_optional_str(project_name),
             image_urls=_string_tuple(data.get(s.firestore_images_field)),
+            source_branch=_optional_str(data.get("source_branch")),
+            source_pr_url=_optional_str(data.get("source_pr_url")),
         )
 
 

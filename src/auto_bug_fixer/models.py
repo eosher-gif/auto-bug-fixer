@@ -24,6 +24,8 @@ class Bug:
     customer_name: str | None = None
     project_name: str | None = None
     image_urls: tuple[str, ...] = ()
+    source_branch: str | None = None
+    source_pr_url: str | None = None
 
 
 @dataclass

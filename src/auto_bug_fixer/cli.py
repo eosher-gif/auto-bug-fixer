@@ -147,7 +147,21 @@ def _run_index_once(settings: Settings) -> int:
 
 
 def _run_pipeline_once(settings: Settings) -> int:
+    log = get_logger(__name__)
     registry = _load_registry_or_die(settings)
+
+    # Check for email replies and create follow-up tickets
+    if settings.email_enabled:
+        try:
+            from auto_bug_fixer.reply_handler import ReplyHandler
+
+            handler = ReplyHandler(settings)
+            created = handler.process_replies()
+            if created:
+                log.info("replies_converted_to_tickets", count=created)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("reply_check_failed", error=str(exc))
+
     pipeline = BugFixPipeline(
         settings,
         registry=registry,

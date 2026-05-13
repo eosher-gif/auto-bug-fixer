@@ -86,12 +86,21 @@ class BugFixPipeline:
         return len(bugs)
 
     def _process_one(self, bug: Bug) -> None:
-        log.info("processing_bug", bug_id=bug.id, repo=bug.repo_url)
+        is_followup = bug.source_branch is not None
+        log.info(
+            "processing_bug",
+            bug_id=bug.id,
+            repo=bug.repo_url,
+            followup=is_followup,
+            source_branch=bug.source_branch,
+        )
         self._repo.mark_status(bug.id, self._settings.bug_status_processing)
 
         sandbox = self._settings.workspace_dir / f"bug-{bug.id}-{int(time.time())}"
         try:
-            self._git.clone(bug.repo_url, bug.base_branch, sandbox)
+            # Follow-up: clone the PR branch, not main
+            clone_branch = bug.source_branch or bug.base_branch
+            self._git.clone(bug.repo_url, clone_branch, sandbox)
             repo_index, forbidden_paths, history_block = self._lookup_context(
                 bug.repo_url
             )
@@ -131,6 +140,30 @@ class BugFixPipeline:
         sandbox: Path,
         outcome: FixOutcome,
     ) -> PullRequest | None:
+        if bug.source_branch:
+            # Follow-up: push to existing PR branch
+            commit_message = (
+                f"fix(followup-{bug.id}): {bug.title}\n\n{outcome.summary}"
+            )
+            if not self._git.commit_all(sandbox, commit_message):
+                return None
+            self._git.push(sandbox, bug.source_branch, bug.repo_url)
+            log.info(
+                "followup_pushed",
+                bug_id=bug.id,
+                branch=bug.source_branch,
+                pr_url=bug.source_pr_url,
+            )
+            # Return a PullRequest pointing to the existing PR
+            pr_number = _extract_pr_number(bug.source_pr_url or "")
+            return PullRequest(
+                number=pr_number,
+                url=bug.source_pr_url or "",
+                branch=bug.source_branch,
+                title=f"[auto] Follow-up fix: {bug.title}",
+            )
+
+        # New bug: create new branch + PR
         branch = _branch_name(bug.id)
         self._git.create_branch(sandbox, branch)
         commit_message = f"fix(bug-{bug.id}): {bug.title}\n\n{outcome.summary}"
@@ -255,6 +288,15 @@ class BugFixPipeline:
     def _cleanup(sandbox: Path) -> None:
         if sandbox.exists():
             shutil.rmtree(sandbox, ignore_errors=True)
+
+
+def _extract_pr_number(pr_url: str) -> int:
+    """Extract PR number from a GitHub PR URL."""
+    parts = pr_url.rstrip("/").split("/")
+    try:
+        return int(parts[-1])
+    except (ValueError, IndexError):
+        return 0
 
 
 def _branch_name(bug_id: str) -> str:
