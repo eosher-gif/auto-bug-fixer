@@ -24,7 +24,9 @@ class ReplyHandler:
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._monitor = ReplyMonitor(settings)
+        from pathlib import Path
+        processed_file = Path(settings.index_dir) / ".processed_replies"
+        self._monitor = ReplyMonitor(settings, processed_file=processed_file)
         self._base_url = (
             f"{settings.firestore_base_url}/projects/{settings.firebase_project_id}"
             f"/databases/(default)/documents/{settings.firestore_collection}"

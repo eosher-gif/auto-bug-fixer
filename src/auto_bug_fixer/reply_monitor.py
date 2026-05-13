@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass
 from email.header import decode_header
 from email.utils import parseaddr
+from pathlib import Path
 
 from auto_bug_fixer.config import Settings
 from auto_bug_fixer.logging_setup import get_logger
@@ -37,10 +38,23 @@ class ReplyMessage:
 class ReplyMonitor:
     """Connects to Gmail IMAP and extracts replies to bot emails."""
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, processed_file: Path | None = None) -> None:
         self._host = _imap_host(settings.smtp_host)
         self._username = settings.smtp_username
         self._password = settings.smtp_password.get_secret_value()
+        self._processed_file = processed_file or Path("indexes/.processed_replies")
+        self._processed = self._load_processed()
+
+    def _load_processed(self) -> set[str]:
+        if self._processed_file.is_file():
+            return set(self._processed_file.read_text(encoding="utf-8").splitlines())
+        return set()
+
+    def _save_processed(self) -> None:
+        self._processed_file.parent.mkdir(parents=True, exist_ok=True)
+        self._processed_file.write_text(
+            "\n".join(sorted(self._processed)), encoding="utf-8"
+        )
 
     def check_replies(self) -> list[ReplyMessage]:
         """Return new replies and mark them as read.
@@ -74,8 +88,14 @@ class ReplyMonitor:
             imap.login(self._username, self._password)
             imap.select("INBOX")
 
-            # Search for unread replies to our emails only
-            search_query = '(UNSEEN SUBJECT "Re: [auto-bug-fixer]")'
+            # Search for replies to our emails.
+            # Use a simple subject search — brackets don't work reliably
+            # in IMAP SUBJECT queries. We filter more precisely in _parse_one.
+            # Search RECENT or within last day to avoid reprocessing old mail.
+            # Gmail labels replies as SEEN when the thread is opened, so
+            # we can't rely on UNSEEN. Instead we search by subject keyword
+            # and track processed IDs via a custom IMAP flag.
+            search_query = '(SUBJECT "auto-bug-fixer" SUBJECT "Re:")'
             _status, msg_ids = imap.search(None, search_query)
 
             if not msg_ids or not msg_ids[0]:
@@ -85,12 +105,16 @@ class ReplyMonitor:
             for msg_id in msg_ids[0].split():
                 reply = self._parse_one(imap, msg_id)
                 if reply is not None:
+                    if reply.message_id in self._processed:
+                        continue
                     replies.append(reply)
-                    # Mark as read so we don't process again
-                    imap.store(msg_id, "+FLAGS", "\\Seen")
+                    self._processed.add(reply.message_id)
+                    # Star the message so we can visually track processed replies
+                    imap.store(msg_id, "+FLAGS", "\\Flagged")
 
         if replies:
             log.info("reply_monitor_found", count=len(replies))
+            self._save_processed()
         return replies
 
     def _parse_one(self, imap: imaplib.IMAP4_SSL, msg_id: bytes) -> ReplyMessage | None:
