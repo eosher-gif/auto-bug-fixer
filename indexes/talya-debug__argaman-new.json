@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-12T19:00:15+00:00",
+  "indexed_at": "2026-05-13T06:50:59+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -239,6 +239,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^1.8.0",
     "next-themes": "^0.4.6",
+    "pdf-lib": "^1.17.1",
     "postcss": "^8.5.10",
     "react": "^19.2.4",
     "react-day-picker": "^9.14.0",
