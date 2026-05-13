@@ -35,8 +35,10 @@ name: bug-fixer
 # Public repos get unlimited Actions minutes.
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
+  # Cron disabled — self-trigger chain runs every 5 min instead.
+  # Cron backup: uncomment if self-trigger breaks.
+  # schedule:
+  #   - cron: "0 * * * *"
   # Push trigger fires on changes to the workflow file itself, the repo
   # registry, requirements, or source. This lets us validate the
   # pipeline end-to-end after a deploy without needing actions:write on
@@ -57,7 +59,7 @@ on:
 
 concurrency:
   group: bug-fixer
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
