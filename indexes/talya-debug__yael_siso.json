@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-13T06:51:01+00:00",
+  "indexed_at": "2026-05-14T06:48:20+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -44,6 +44,7 @@
     "meeting_notes_yael_12_05.txt",
     "message_for_chloe_add_test_user.txt",
     "message_for_chloe_fix_redirect.txt",
+    "message_for_chloe_fixes.txt",
     "message_for_yael_budget_approval.txt",
     "MORNING_SUMMARY.md",
     "package-lock.json",
@@ -220,6 +221,7 @@
       "../data/scopeTemplate"
     ],
     "src/pages/Dashboard.jsx": [
+      "../lib/supabase",
       "./Home",
       "./Clients",
       "./Projects",
