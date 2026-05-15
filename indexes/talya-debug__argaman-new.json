@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-14T06:48:18+00:00",
+  "indexed_at": "2026-05-15T06:58:10+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -27,6 +27,7 @@
     "public/icons.svg",
     "public/logo.jpg",
     "public/pricelist.csv",
+    "quote-Q-31399146 (1).pdf",
     "README.md",
     "scripts/",
     "scripts/base44-export.json",
@@ -169,6 +170,7 @@
     "src/pages/Links.jsx",
     "src/pages/Login.jsx",
     "src/pages/NewTask.jsx",
+    "src/pages/PriceList.jsx",
     "src/pages/ProjectDetails.jsx",
     "src/pages/Projects.jsx",
     "src/pages/QuoteDetails.jsx",
@@ -263,6 +265,7 @@
     "src/pages/Links.jsx",
     "src/pages/Login.jsx",
     "src/pages/NewTask.jsx",
+    "src/pages/PriceList.jsx",
     "src/pages/ProjectDetails.jsx",
     "src/pages/Projects.jsx",
     "src/pages/QuoteDetails.jsx",
@@ -346,6 +349,14 @@
       "../components/tasks/TaskForm",
       "@/entities",
       "@/utils"
+    ],
+    "src/pages/PriceList.jsx": [
+      "@/entities",
+      "@/components/ui/table",
+      "@/components/ui/card",
+      "@/components/ui/input",
+      "@/components/ui/button",
+      "@/components/ui/select"
     ],
     "src/pages/ProjectDetails.jsx": [
       "@/entities",

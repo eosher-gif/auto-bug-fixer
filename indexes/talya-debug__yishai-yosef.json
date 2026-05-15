@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yishai-yosef",
   "default_branch": "main",
-  "indexed_at": "2026-05-14T06:48:19+00:00",
+  "indexed_at": "2026-05-15T06:58:10+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Yishai-Yosef storefront. Same stack as Argaman.",
@@ -206,7 +206,6 @@
     "TRAINING_SHORT.md",
     "vercel.json",
     "vite.config.js",
-    "\u05d4\u05d5\u05d3\u05e2\u05d4-\u05dc\u05d9\u05e9\u05d9-\u05d9\u05d5\u05de\u05df-\u05e2\u05d1\u05d5\u05d3\u05d4.txt",
     "\u05de\u05e2\u05e7\u05d1_\u05e4\u05d9\u05ea\u05d5\u05d7\u05d9\u05dd_\u05d9\u05e9\u05d9_\u05d9\u05d5\u05e1\u05e3.xlsx",
     "\u05e1\u05d9\u05db\u05d5\u05dd_\u05ea\u05d9\u05e7\u05d5\u05e0\u05d9\u05dd_\u05d9\u05e9\u05d9_13_04.md"
   ],
