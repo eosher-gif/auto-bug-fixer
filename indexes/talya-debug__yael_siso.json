@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-17T06:47:41+00:00",
+  "indexed_at": "2026-05-18T08:08:07+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -51,6 +51,7 @@
     "package.json",
     "PLAN.md",
     "postcss.config.js",
+    "PRE_DELIVERY_TEST.md",
     "public/",
     "public/favicon.svg",
     "public/guide-admin.html",

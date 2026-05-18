@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-17T06:47:38+00:00",
+  "indexed_at": "2026-05-18T08:08:06+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -12,6 +12,8 @@
     "components.json",
     "DEVELOPMENT_TODO.md",
     "eslint.config.js",
+    "firebase.json",
+    "firestore.rules",
     "index.html",
     "jsconfig.json",
     "MEETING_SCRIPT.md",
@@ -19,6 +21,7 @@
     "package.json",
     "PLAN_VEHICLES.md",
     "postcss.config.js",
+    "PRE_DELIVERY_TEST.md",
     "PROCUREMENT_FLOW.md",
     "PROJECT_SUMMARY.md",
     "public/",
@@ -27,7 +30,6 @@
     "public/icons.svg",
     "public/logo.jpg",
     "public/pricelist.csv",
-    "quote-Q-31399146 (1).pdf",
     "README.md",
     "scripts/",
     "scripts/base44-export.json",
@@ -179,6 +181,7 @@
     "src/pages/SubContractors.jsx",
     "src/pages/SupplierPayments.jsx",
     "src/pages/Tasks.jsx",
+    "src/pages/Training.jsx",
     "src/pages/Vehicles.jsx",
     "src/pages/WorkLogForm.jsx",
     "src/pages.config.js",
@@ -188,6 +191,8 @@
     "TEST_CHECKLIST.md",
     "vercel.json",
     "vite.config.js",
+    "\u05d4\u05d5\u05e8\u05d0\u05d5\u05ea-\u05e2\u05d3\u05db\u05d5\u05df-\u05d7\u05d5\u05e7\u05d9-Firebase.md",
+    "\u05de\u05e1\u05de\u05da-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d9\u05e0\u05d9\u05e8.md",
     "\u05e9\u05d0\u05dc\u05d5\u05ea-\u05dc\u05d9\u05e0\u05d9\u05e8.md"
   ],
   "key_files": [
@@ -274,6 +279,7 @@
     "src/pages/SubContractors.jsx",
     "src/pages/SupplierPayments.jsx",
     "src/pages/Tasks.jsx",
+    "src/pages/Training.jsx",
     "src/pages/Vehicles.jsx",
     "src/pages/WorkLogForm.jsx"
   ],
@@ -424,6 +430,9 @@
       "../components/tasks/TaskList",
       "../components/tasks/TaskFilters",
       "@/lib/notifications"
+    ],
+    "src/pages/Training.jsx": [
+      "@/components/ui/card"
     ],
     "src/pages/Vehicles.jsx": [
       "@/entities",
