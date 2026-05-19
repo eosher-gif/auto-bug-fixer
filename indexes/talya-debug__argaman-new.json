@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-18T08:08:06+00:00",
+  "indexed_at": "2026-05-19T07:51:10+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -30,6 +30,7 @@
     "public/icons.svg",
     "public/logo.jpg",
     "public/pricelist.csv",
+    "QA_RESULTS.md",
     "README.md",
     "scripts/",
     "scripts/base44-export.json",
@@ -429,7 +430,8 @@
       "../components/tasks/TaskForm",
       "../components/tasks/TaskList",
       "../components/tasks/TaskFilters",
-      "@/lib/notifications"
+      "@/lib/notifications",
+      "@/entities"
     ],
     "src/pages/Training.jsx": [
       "@/components/ui/card"

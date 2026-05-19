@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-18T08:08:07+00:00",
+  "indexed_at": "2026-05-19T07:51:11+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -61,6 +61,7 @@
     "QA_FINAL.md",
     "QA_OVERNIGHT.md",
     "QA_REPORT.md",
+    "QA_RESULTS.md",
     "questions_for_chloe.md",
     "questions_for_meeting.md",
     "README.md",
@@ -87,6 +88,7 @@
     "src/data/scopeTemplate.js",
     "src/index.css",
     "src/lib/",
+    "src/lib/config.js",
     "src/lib/supabase.js",
     "src/main.jsx",
     "src/pages/",
@@ -163,6 +165,7 @@
     "SYSTEM_FLOW.md",
     "tailwind.config.js",
     "task_run_budget_sql.txt",
+    "team_passwords.txt",
     "training_guide_admin.html",
     "training_guide_team.html",
     "training_plan_for_team.txt",
@@ -212,10 +215,12 @@
   ],
   "component_map": {
     "src/pages/Billing.jsx": [
-      "../lib/supabase"
+      "../lib/supabase",
+      "../lib/config"
     ],
     "src/pages/Clients.jsx": [
-      "../lib/supabase"
+      "../lib/supabase",
+      "../lib/config"
     ],
     "src/pages/Contents.jsx": [
       "../lib/supabase",
@@ -251,7 +256,8 @@
       "../lib/supabase"
     ],
     "src/pages/Projects.jsx": [
-      "../lib/supabase"
+      "../lib/supabase",
+      "../lib/config"
     ],
     "src/pages/PublicWorkLog.jsx": [
       "../lib/supabase"
