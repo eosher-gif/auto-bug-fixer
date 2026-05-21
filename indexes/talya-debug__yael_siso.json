@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-20T07:49:56+00:00",
+  "indexed_at": "2026-05-21T07:57:21+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -75,6 +75,7 @@
     "sql_budget_setup.sql",
     "sql_meeting_fixes_12_05.sql",
     "sql_payments_phase.sql",
+    "sql_phase2_myday.sql",
     "src/",
     "src/App.css",
     "src/App.jsx",
@@ -101,6 +102,7 @@
     "src/pages/Knowledge.jsx",
     "src/pages/Login.jsx",
     "src/pages/MonthlyReport.jsx",
+    "src/pages/MyDay.jsx",
     "src/pages/Projects.jsx",
     "src/pages/PublicWorkLog.jsx",
     "src/pages/SignaturePage.jsx",
@@ -206,6 +208,7 @@
     "src/pages/Knowledge.jsx",
     "src/pages/Login.jsx",
     "src/pages/MonthlyReport.jsx",
+    "src/pages/MyDay.jsx",
     "src/pages/Projects.jsx",
     "src/pages/PublicWorkLog.jsx",
     "src/pages/SignaturePage.jsx",
@@ -238,7 +241,8 @@
       "./Suppliers",
       "./SupplierBilling",
       "./MonthlyReport",
-      "./FinanceDashboard"
+      "./FinanceDashboard",
+      "./MyDay"
     ],
     "src/pages/FinanceDashboard.jsx": [
       "../lib/supabase"
@@ -253,6 +257,9 @@
       "../lib/supabase"
     ],
     "src/pages/MonthlyReport.jsx": [
+      "../lib/supabase"
+    ],
+    "src/pages/MyDay.jsx": [
       "../lib/supabase"
     ],
     "src/pages/Projects.jsx": [
@@ -279,7 +286,7 @@
   "key_snippets": {
     "package.json": "{\n  \"name\": \"yael_siso\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"engines\": { \"node\": \">=20.0.0\" },\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint .\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@supabase/supabase-js\": \"^2.99.1\",\n    \"@tailwindcss/vite\": \"^4.2.1\",\n    \"lucide-react\": \"^0.577.0\",\n    \"react\": \"^19.2.4\",\n    \"react-dom\": \"^19.2.4\",\n    \"react-router-dom\": \"^7.13.1\",\n    \"xlsx\": \"^0.18.5\"\n  },\n  \"devDependencies\": {\n    \"@eslint/js\": \"^9.39.4\",\n    \"@types/react\": \"^19.2.14\",\n    \"@types/react-dom\": \"^19.2.3\",\n    \"@vitejs/plugin-react\": \"^6.0.0\",\n    \"autoprefixer\": \"^10.4.27\",\n    \"eslint\": \"^9.39.4\",\n    \"eslint-plugin-react-hooks\": \"^7.0.1\",\n    \"eslint-plugin-react-refresh\": \"^0.5.2\",\n    \"globals\": \"^17.4.0\",\n    \"postcss\": \"^8.5.8\",\n    \"tailwindcss\": \"^4.2.1\",\n    \"vite\": \"^8.0.0\"\n  }\n}\n",
     "vite.config.js": "import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\nimport tailwindcss from '@tailwindcss/vite'\n\nexport default defineConfig({\n  plugins: [react(), tailwindcss()],\n})\n",
-    "src/App.jsx": "import { useState, useEffect } from 'react'\nimport { BrowserRouter, Routes, Route } from 'react-router-dom'\nimport { supabase } from './lib/supabase'\nimport Dashboard from './pages/Dashboard'\nimport PublicWorkLog from './pages/PublicWorkLog'\nimport SignaturePage from './pages/SignaturePage'\nimport Login from './pages/Login'\n\nfunction App() {\n  const [user, setUser] = useState(null)\n  const [userRole, setUserRole] = useState(null)\n  const [loading, setLoading] = useState(true)\n\n  useEffect(() => {\n    // Check existing session\n    supabase.auth.getSession().then(({ data: { session } }) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setLoading(false)\n      }\n    })\n\n    // Listen for auth changes\n    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setUser(null)\n        setUserRole(null)\n      }\n    })\n\n    return () => subscription.unsubscribe()\n  }, [])\n\n  async function loadRole(email) {\n    const { data, error } = await supabase.from('user_roles').select('role, name').eq('email', email).maybeSingle()\n    // If table doesn't exist or no row found, default to admin\n    setUserRole(data || { role: 'admin', name: email.split('@')[0] })\n    setLoading(false)\n  }\n\n  async function handleLogin(u) {\n    setUser(u)\n    await loadRole(u.email)\n  }\n\n  async"
+    "src/App.jsx": "import { useState, useEffect } from 'react'\nimport { BrowserRouter, Routes, Route } from 'react-router-dom'\nimport { supabase } from './lib/supabase'\nimport Dashboard from './pages/Dashboard'\nimport PublicWorkLog from './pages/PublicWorkLog'\nimport SignaturePage from './pages/SignaturePage'\nimport Login from './pages/Login'\n\nfunction App() {\n  const [user, setUser] = useState(null)\n  const [userRole, setUserRole] = useState(null)\n  const [loading, setLoading] = useState(true)\n\n  useEffect(() => {\n    // Check existing session\n    supabase.auth.getSession().then(({ data: { session } }) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setLoading(false)\n      }\n    })\n\n    // Listen for auth changes\n    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {\n      if (session?.user) {\n        setUser(session.user)\n        loadRole(session.user.email)\n      } else {\n        setUser(null)\n        setUserRole(null)\n      }\n    })\n\n    return () => subscription.unsubscribe()\n  }, [])\n\n  async function loadRole(email) {\n    const { data, error } = await supabase.from('user_roles').select('role, name, email').eq('email', email).maybeSingle()\n    // If table doesn't exist or no row found, default to admin\n    setUserRole(data || { role: 'admin', name: email.split('@')[0], email })\n    setLoading(false)\n  }\n\n  async function handleLogin(u) {\n    setUser(u)\n    await loadRole(u.email"
   },
   "entry_points": [
     "src/main.jsx",
