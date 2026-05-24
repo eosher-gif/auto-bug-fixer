@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yishai-yosef",
   "default_branch": "main",
-  "indexed_at": "2026-05-23T06:36:08+00:00",
+  "indexed_at": "2026-05-24T07:23:36+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Yishai-Yosef storefront. Same stack as Argaman.",
@@ -10,11 +10,14 @@
     ".claude/",
     ".claude/launch.json",
     ".gitignore",
+    "api/",
+    "api/generate-pdf.js",
     "BUGS_POST_TRAINING.md",
     "cleanup.py",
     "components.json",
     "create_milestones.mjs",
     "create_tracker.py",
+    "CTO-AUDIT.md",
     "diagnose.mjs",
     "diagnose2.mjs",
     "diagnose3.mjs",
@@ -40,6 +43,7 @@
     "migration_worklog_task_cost.sql",
     "package-lock.json",
     "package.json",
+    "PDF-SOLUTION.md",
     "PLAN.md",
     "postcss.config.js",
     "PROJECT_STATUS.md",
@@ -197,7 +201,13 @@
     "src/pages/WorkLogForm.jsx",
     "src/pages.config.js",
     "src/utils/",
+    "src/utils/fonts/",
+    "src/utils/fonts/Heebo-Bold.ttf",
+    "src/utils/fonts/Heebo-Regular.ttf",
+    "src/utils/generateProtocolPDF.js",
+    "src/utils/generateQuotePDF.js",
     "src/utils/index.ts",
+    "src/utils/pdfEngine.js",
     "supabase-change-orders.sql",
     "supabase_schema.sql",
     "tailwind.config.js",
@@ -207,10 +217,12 @@
     "test-downloads/delivery-mobile-final.png",
     "test-downloads/main-site-check.png",
     "test-downloads/natan-login.png",
+    "test-downloads/pdf-refactor-test.pdf",
     "test-downloads/revert-test.png",
     "test-downloads/worklog-mobile-purchase.png",
     "test-downloads/worklog-tab-purchase.png",
     "test-downloads/worklog-tab-work.png",
+    "test-downloads/worklog-unified.png",
     "test-quote.py",
     "test-quote2.py",
     "test-quote3.py",
@@ -223,6 +235,7 @@
     "TRAINING_SHORT.md",
     "vercel.json",
     "vite.config.js",
+    "\u05d4\u05d5\u05d3\u05e2\u05d4-\u05dc\u05d9\u05e9\u05d9-\u05e2\u05d3\u05db\u05d5\u05df-\u05de\u05e2\u05e8\u05db\u05ea.md",
     "\u05de\u05e2\u05e7\u05d1_\u05e4\u05d9\u05ea\u05d5\u05d7\u05d9\u05dd_\u05d9\u05e9\u05d9_\u05d9\u05d5\u05e1\u05e3.xlsx",
     "\u05e1\u05d9\u05db\u05d5\u05dd_\u05ea\u05d9\u05e7\u05d5\u05e0\u05d9\u05dd_\u05d9\u05e9\u05d9_13_04.md",
     "\u05e9\u05d0\u05dc\u05d5\u05ea-\u05dc\u05d9\u05e9\u05d9-\u05de\u05d5\u05d3\u05d5\u05dc-\u05d4\u05d5\u05e6\u05d0\u05d5\u05ea.md"
@@ -234,6 +247,7 @@
   "dependencies": {
     "@base44/sdk": "^0.8.0",
     "@base44/vite-plugin": "^1.0.0",
+    "@fontsource/heebo": "^5.2.8",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -263,10 +277,13 @@
     "@radix-ui/react-toggle": "^1.1.2",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@sparticuz/chromium": "^148.0.0",
+    "@sparticuz/chromium-min": "^148.0.0",
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^5.2.0",
     "@supabase/supabase-js": "^2.47.10",
     "@tanstack/react-query": "^5.84.1",
+    "bidi-js": "^1.0.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -283,7 +300,10 @@
     "lucide-react": "^0.475.0",
     "moment": "^2.30.1",
     "next-themes": "^0.4.4",
+    "pdfmake": "^0.2.15",
+    "pdfmake-rtl": "^2.1.2",
     "pg": "^8.20.0",
+    "puppeteer-core": "^25.0.4",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
@@ -388,7 +408,8 @@
       "../utils",
       "@/components/ui/input",
       "../components/shared/PageHeader",
-      "@/components/ui/use-toast"
+      "@/components/ui/use-toast",
+      "@/utils/generateQuotePDF"
     ],
     "src/pages/Quotes.jsx": [
       "@/components/ui/button",
@@ -408,7 +429,8 @@
       "@/api/base44Client"
     ],
     "src/pages/SignDeliveryProtocol.jsx": [
-      "@/api/base44Client"
+      "@/api/base44Client",
+      "@/utils/generateProtocolPDF"
     ],
     "src/pages/WorkLogForm.jsx": [
       "@/api/base44Client",
@@ -417,7 +439,7 @@
     ]
   },
   "key_snippets": {
-    "package.json": "{\n  \"name\": \"base44-app\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint . --quiet\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"typecheck\": \"tsc -p ./jsconfig.json\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@base44/sdk\": \"^0.8.0\",\n    \"@base44/vite-plugin\": \"^1.0.0\",\n    \"@hello-pangea/dnd\": \"^17.0.0\",\n    \"@hookform/resolvers\": \"^4.1.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.3\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.2\",\n    \"@radix-ui/react-avatar\": \"^1.1.3\",\n    \"@radix-ui/react-checkbox\": \"^1.1.4\",\n    \"@radix-ui/react-collapsible\": \"^1.1.3\",\n    \"@radix-ui/react-context-menu\": \"^2.2.6\",\n    \"@radix-ui/react-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.6\",\n    \"@radix-ui/react-hover-card\": \"^1.1.6\",\n    \"@radix-ui/react-label\": \"^2.1.2\",\n    \"@radix-ui/react-menubar\": \"^1.1.6\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.5\",\n    \"@radix-ui/react-popover\": \"^1.1.6\",\n    \"@radix-ui/react-progress\": \"^1.1.2\",\n    \"@radix-ui/react-radio-group\": \"^1.2.3\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.3\",\n    \"@radix-ui/react-select\": \"^2.1.6\",\n    \"@radix-ui/react-separator\": \"^1.1.2\",\n    \"@radix-ui/react-slider\": \"^1.2.3\",\n    \"@radix-ui/react-slot\": \"^1.1.2\",\n    \"@radix-ui/react-switch\": \"^1.1.3\",\n    \"@radix-ui/react-tabs\": \"^1.1.3\",\n    \"@radix-ui/react-toast\": \"^1.2.2\",\n    \"@radix-ui/react-toggle\": ",
+    "package.json": "{\n  \"name\": \"base44-app\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"lint\": \"eslint . --quiet\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"typecheck\": \"tsc -p ./jsconfig.json\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"@base44/sdk\": \"^0.8.0\",\n    \"@base44/vite-plugin\": \"^1.0.0\",\n    \"@fontsource/heebo\": \"^5.2.8\",\n    \"@hello-pangea/dnd\": \"^17.0.0\",\n    \"@hookform/resolvers\": \"^4.1.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.3\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.2\",\n    \"@radix-ui/react-avatar\": \"^1.1.3\",\n    \"@radix-ui/react-checkbox\": \"^1.1.4\",\n    \"@radix-ui/react-collapsible\": \"^1.1.3\",\n    \"@radix-ui/react-context-menu\": \"^2.2.6\",\n    \"@radix-ui/react-dialog\": \"^1.1.6\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.6\",\n    \"@radix-ui/react-hover-card\": \"^1.1.6\",\n    \"@radix-ui/react-label\": \"^2.1.2\",\n    \"@radix-ui/react-menubar\": \"^1.1.6\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.5\",\n    \"@radix-ui/react-popover\": \"^1.1.6\",\n    \"@radix-ui/react-progress\": \"^1.1.2\",\n    \"@radix-ui/react-radio-group\": \"^1.2.3\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.3\",\n    \"@radix-ui/react-select\": \"^2.1.6\",\n    \"@radix-ui/react-separator\": \"^1.1.2\",\n    \"@radix-ui/react-slider\": \"^1.2.3\",\n    \"@radix-ui/react-slot\": \"^1.1.2\",\n    \"@radix-ui/react-switch\": \"^1.1.3\",\n    \"@radix-ui/react-tabs\": \"^1.1.3\",\n    \"@radix-ui/react-toast\": \"^1.2",
     "vite.config.js": "import react from '@vitejs/plugin-react'\nimport { defineConfig } from 'vite'\nimport path from 'path'\n\nexport default defineConfig({\n  plugins: [react()],\n  resolve: {\n    alias: {\n      '@': path.resolve(__dirname, './src'),\n    },\n  },\n  build: {\n    target: 'es2015',\n  },\n})\n",
     "src/App.jsx": "import { Toaster } from \"@/components/ui/toaster\"\nimport { QueryClientProvider } from '@tanstack/react-query'\nimport { queryClientInstance } from '@/lib/query-client'\nimport NavigationTracker from '@/lib/NavigationTracker'\nimport { pagesConfig } from './pages.config'\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport PageNotFound from './lib/PageNotFound';\nimport { AuthProvider, useAuth } from '@/lib/AuthContext';\nimport UserNotRegisteredError from '@/components/UserNotRegisteredError';\nimport Login from './pages/Login';\nimport { getAllowedPages } from '@/lib/roles';\nimport ErrorBoundary from '@/components/ErrorBoundary';\n\nconst { Pages, Layout, mainPage } = pagesConfig;\nconst mainPageKey = mainPage ?? Object.keys(Pages)[0];\nconst MainPage = mainPageKey ? Pages[mainPageKey] : <></>;\n\nconst LayoutWrapper = ({ children, currentPageName }) => Layout ?\n  <Layout currentPageName={currentPageName}>{children}</Layout>\n  : <>{children}</>;\n\n// \u05d3\u05e4\u05d9\u05dd \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9\u05d9\u05dd \u2014 \u05e0\u05d2\u05d9\u05e9\u05d9\u05dd \u05dc\u05dc\u05d0 \u05db\u05e0\u05d9\u05e1\u05d4\nconst PUBLIC_PAGES = ['WorkLogForm', 'SignChangeOrder', 'SignDeliveryProtocol'];\n\nconst AuthenticatedApp = () => {\n  const { isLoadingAuth, isAuthenticated, user } = useAuth();\n\n  // \u05d8\u05d5\u05e2\u05df \u2014 \u05d1\u05d5\u05d3\u05e7 \u05e1\u05e9\u05df\n  if (isLoadingAuth) {\n    return (\n      <div className=\"fixed inset-0 flex items-center justify-center\" style={{ backgroundColor: \"#F2EEE6\" }}>\n        <div className=\"w-8 h-8 border-4 border-[#D0C8BC] border-t-[#987F68] rounded-full animate-sp"
   },
