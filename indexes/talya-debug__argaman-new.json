@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-05-28T08:04:27+00:00",
+  "indexed_at": "2026-05-29T08:01:12+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -198,6 +198,7 @@
     "vite.config.js",
     "\u05d4\u05d5\u05e8\u05d0\u05d5\u05ea-\u05e2\u05d3\u05db\u05d5\u05df-\u05d7\u05d5\u05e7\u05d9-Firebase.md",
     "\u05de\u05e1\u05de\u05da-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d9\u05e0\u05d9\u05e8.md",
+    "\u05de\u05e1\u05de\u05da-\u05de\u05e1\u05d9\u05e8\u05d4.html",
     "\u05e1\u05d9\u05db\u05d5\u05dd-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d0\u05e8\u05d2\u05de\u05df.md",
     "\u05e9\u05d0\u05dc\u05d5\u05ea-\u05dc\u05d9\u05e0\u05d9\u05e8.md"
   ],
@@ -442,7 +443,8 @@
       "@/entities"
     ],
     "src/pages/Training.jsx": [
-      "@/components/ui/card"
+      "@/components/ui/card",
+      "@/components/ui/input"
     ],
     "src/pages/Vehicles.jsx": [
       "@/entities",
