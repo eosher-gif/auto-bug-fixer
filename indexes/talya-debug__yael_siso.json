@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yael_siso",
   "default_branch": "master",
-  "indexed_at": "2026-05-31T07:48:02+00:00",
+  "indexed_at": "2026-06-01T09:28:55+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": null,
@@ -81,6 +81,7 @@
     "sql_meeting_fixes_12_05.sql",
     "sql_payments_phase.sql",
     "sql_phase2_myday.sql",
+    "sql_quotes.sql",
     "src/",
     "src/App.css",
     "src/App.jsx",
