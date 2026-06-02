@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-06-01T09:28:53+00:00",
+  "indexed_at": "2026-06-02T08:39:59+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -19,6 +19,7 @@
     "index.html",
     "jsconfig.json",
     "MEETING_SCRIPT.md",
+    "OPEN-TASKS.md",
     "package-lock.json",
     "package.json",
     "PDF-SPEC.md",
@@ -71,6 +72,7 @@
     "src/components/dashboard/StatusChart.jsx",
     "src/components/dashboard/UpcomingTasks.jsx",
     "src/components/leads/",
+    "src/components/leads/LeadActivityLog.jsx",
     "src/components/leads/LeadFilters.jsx",
     "src/components/leads/LeadForm.jsx",
     "src/components/leads/LeadQuickActions.jsx",
@@ -177,6 +179,7 @@
     "src/lib/utils.js",
     "src/main.jsx",
     "src/pages/",
+    "src/pages/Archive.jsx",
     "src/pages/CollectionDashboard.jsx",
     "src/pages/CollectionTasks.jsx",
     "src/pages/Dashboard.jsx",
@@ -207,11 +210,16 @@
     "TEST_CHECKLIST.md",
     "vercel.json",
     "vite.config.js",
+    "whatsapp-qr.png",
+    "\u05d4\u05d3\u05e8\u05db\u05ea-\u05db\u05e0\u05d9\u05e1\u05d4-\u05d0\u05e8\u05d2\u05de\u05df.txt",
     "\u05d4\u05d5\u05e8\u05d0\u05d5\u05ea-\u05e2\u05d3\u05db\u05d5\u05df-\u05d7\u05d5\u05e7\u05d9-Firebase.md",
+    "\u05d4\u05e0\u05d7\u05d9\u05d5\u05ea-\u05d7\u05d9\u05d1\u05d5\u05e8-\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4.txt",
     "\u05de\u05e1\u05de\u05da-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d9\u05e0\u05d9\u05e8.md",
     "\u05de\u05e1\u05de\u05da-\u05de\u05e1\u05d9\u05e8\u05d4.html",
     "\u05e1\u05d9\u05db\u05d5\u05dd-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d0\u05e8\u05d2\u05de\u05df.md",
     "\u05e1\u05d9\u05db\u05d5\u05dd-\u05de\u05e1\u05d9\u05e8\u05d4-\u05d0\u05e8\u05d2\u05de\u05df.pdf",
+    "\u05e1\u05d9\u05db\u05d5\u05dd-\u05e4\u05ea\u05d5\u05d7-\u05d1\u05d5\u05d8-\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4.txt",
+    "\u05e9\u05d0\u05dc\u05d5\u05ea-\u05d0\u05e4\u05d9\u05d5\u05df-\u05d1\u05d5\u05d8-\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4.txt",
     "\u05e9\u05d0\u05dc\u05d5\u05ea-\u05dc\u05d9\u05e0\u05d9\u05e8.md"
   ],
   "key_files": [
@@ -282,6 +290,7 @@
     "zod": "^4.3.6"
   },
   "routes": [
+    "src/pages/Archive.jsx",
     "src/pages/CollectionDashboard.jsx",
     "src/pages/CollectionTasks.jsx",
     "src/pages/Dashboard.jsx",
@@ -306,6 +315,14 @@
     "src/pages/WorkLogForm.jsx"
   ],
   "component_map": {
+    "src/pages/Archive.jsx": [
+      "@/entities",
+      "@/components/ui/card",
+      "@/components/ui/input",
+      "@/components/ui/button",
+      "@/components/ui/badge",
+      "@/utils"
+    ],
     "src/pages/CollectionDashboard.jsx": [
       "@/entities",
       "@/components/ui/card",
