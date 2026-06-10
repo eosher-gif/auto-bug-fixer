@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/yishai-yosef",
   "default_branch": "main",
-  "indexed_at": "2026-06-09T07:52:57+00:00",
+  "indexed_at": "2026-06-10T08:10:39+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Yishai-Yosef storefront. Same stack as Argaman.",
