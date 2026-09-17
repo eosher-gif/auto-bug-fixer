@@ -1,7 +1,7 @@
 {
   "url": "https://github.com/talya-debug/argaman-new",
   "default_branch": "master",
-  "indexed_at": "2026-09-16T09:09:50+00:00",
+  "indexed_at": "2026-09-17T09:18:06+00:00",
   "detected_language": "javascript",
   "suggested_test_command": "npm test --silent",
   "description": "Argaman storefront. React + Firebase. Hebrew RTL UI throughout.\nDeployed on Vercel \u2014 every PR gets an automatic preview URL.",
@@ -33,8 +33,10 @@
     "public/about-argaman.pdf",
     "public/favicon.svg",
     "public/icons.svg",
+    "public/logo-backup-20260910.jpg",
     "public/logo.jpg",
     "public/pricelist.csv",
+    "QA-REPORT-\u05e2\u05d5\u05d1\u05d3\u05d9\u05dd.md",
     "QA_RESULTS.md",
     "README.md",
     "scripts/",
@@ -168,6 +170,7 @@
     "src/Layout.jsx",
     "src/lib/",
     "src/lib/AuthContext.jsx",
+    "src/lib/employees.js",
     "src/lib/exportExcel.js",
     "src/lib/firebase.js",
     "src/lib/importPriceList.js",
@@ -185,6 +188,7 @@
     "src/pages/CollectionDashboard.jsx",
     "src/pages/CollectionTasks.jsx",
     "src/pages/Dashboard.jsx",
+    "src/pages/Employees.jsx",
     "src/pages/FixQuoteLineOrder.jsx",
     "src/pages/KmReport.jsx",
     "src/pages/LeadForm.jsx",
@@ -213,6 +217,7 @@
     "vercel.json",
     "vite.config.js",
     "whatsapp-qr.png",
+    "\u05d0\u05e4\u05d9\u05d5\u05df-\u05de\u05e1\u05da-\u05e2\u05d5\u05d1\u05d3\u05d9\u05dd.md",
     "\u05d4\u05d3\u05e8\u05db\u05ea-\u05db\u05e0\u05d9\u05e1\u05d4-\u05d0\u05e8\u05d2\u05de\u05df.txt",
     "\u05d4\u05d5\u05d3\u05e2\u05d4-\u05dc\u05d7\u05d9\u05d4.txt",
     "\u05d4\u05d5\u05d3\u05e2\u05d4-\u05dc\u05d9\u05e0\u05d9\u05e8-\u05e2\u05d3\u05db\u05d5\u05df-\u05de\u05e2\u05e8\u05db\u05ea.txt",
@@ -300,6 +305,7 @@
     "src/pages/CollectionDashboard.jsx",
     "src/pages/CollectionTasks.jsx",
     "src/pages/Dashboard.jsx",
+    "src/pages/Employees.jsx",
     "src/pages/FixQuoteLineOrder.jsx",
     "src/pages/KmReport.jsx",
     "src/pages/LeadForm.jsx",
@@ -348,11 +354,21 @@
       "@/components/ui/select",
       "@/components/ui/dialog",
       "@/components/ui/label",
-      "@/components/ui/textarea"
+      "@/components/ui/textarea",
+      "@/lib/employees"
     ],
     "src/pages/Dashboard.jsx": [
       "@/entities",
       "@/utils"
+    ],
+    "src/pages/Employees.jsx": [
+      "@/entities",
+      "@/lib/employees",
+      "@/components/ui/card",
+      "@/components/ui/table",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/dropdown-menu"
     ],
     "src/pages/FixQuoteLineOrder.jsx": [
       "@/entities",
@@ -372,7 +388,8 @@
       "@/components/ui/button",
       "@/components/ui/input",
       "@/components/ui/textarea",
-      "@/components/ui/select"
+      "@/components/ui/select",
+      "@/lib/employees"
     ],
     "src/pages/Leads.jsx": [
       "@/entities",
@@ -493,7 +510,8 @@
       "@/components/ui/textarea",
       "@/components/ui/select",
       "@/components/ui/dialog",
-      "@/components/ui/tabs"
+      "@/components/ui/tabs",
+      "@/lib/employees"
     ],
     "src/pages/WorkLogForm.jsx": [
       "@/entities",
